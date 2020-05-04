@@ -79,3 +79,20 @@ export const mockValidateOTP = async (
 
 export const requestOTP = IS_MOCK ? mockRequestOTP : liveRequestOTP;
 export const validateOTP = IS_MOCK ? mockValidateOTP : liveValidateOTP;
+
+export const liveValidateLogin = async (
+  branchCode: string,
+  username: string
+): Promise<boolean> => {
+  return true;
+};
+
+export const mockValidateLogin = async (
+  branchCode: string,
+  username: string
+): Promise<boolean> => {
+  await new Promise(res => setTimeout(() => res("done"), 2000));
+  return true;
+};
+
+export const validateLogin = IS_MOCK ? mockValidateLogin : liveValidateLogin;

@@ -8,22 +8,19 @@ import React, {
 } from "react";
 import { AsyncStorage } from "react-native";
 
-export const SESSION_TOKEN_KEY = "SESSION_TOKEN";
-export const EXPIRY_KEY = "EXPIRY_KEY";
-export const ENDPOINT_KEY = "ENDPOINT_KEY";
+export const BRANCH_CODE = "BRANCH_CODE";
+export const USERNAME = "USERNAME";
 
 interface AuthenticationContext {
-  token: string;
-  expiry: string;
-  endpoint: string;
-  setAuthInfo: (token: string, expiry: number, endpoint: string) => void;
+  branchCode: string;
+  username: string;
+  setAuthInfo: (branchCode: string, username: string) => void;
   clearAuthInfo: () => void;
 }
 
 export const AuthenticationContext = createContext<AuthenticationContext>({
-  token: "",
-  endpoint: "",
-  expiry: "",
+  branchCode: "",
+  username: "",
   setAuthInfo: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   clearAuthInfo: () => {} // eslint-disable-line @typescript-eslint/no-empty-function
 });
@@ -34,48 +31,33 @@ export const useAuthenticationContext = (): AuthenticationContext =>
 export const AuthenticationContextProvider: FunctionComponent = ({
   children
 }) => {
-  const [token, setToken] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [endpoint, setEndpoint] = useState("");
+  const [branchCode, setBranchCode] = useState("");
+  const [username, setUsername] = useState("");
 
   const setAuthInfo = async (
-    tokenInput: string,
-    expiryInput: number,
-    endpointInput: string
+    branchCode: string,
+    username: string
   ): Promise<void> => {
-    setToken(tokenInput);
-    const expiryString = expiryInput.toString();
-    setExpiry(expiryString);
-    setEndpoint(endpointInput);
+    setBranchCode(branchCode);
+    setUsername(username);
     await AsyncStorage.multiSet([
-      [SESSION_TOKEN_KEY, tokenInput],
-      [EXPIRY_KEY, expiryString],
-      [ENDPOINT_KEY, endpointInput]
+      [BRANCH_CODE, branchCode],
+      [USERNAME, username]
     ]);
   };
 
   const clearAuthInfo = useCallback(async (): Promise<void> => {
-    setToken("");
-    setExpiry("");
-    setEndpoint("");
-    await AsyncStorage.multiRemove([
-      SESSION_TOKEN_KEY,
-      EXPIRY_KEY,
-      ENDPOINT_KEY
-    ]);
+    setBranchCode("");
+    setUsername("");
+    await AsyncStorage.multiRemove([BRANCH_CODE, USERNAME]);
   }, []);
 
   const loadAuthFromStore = async (): Promise<void> => {
-    const values = await AsyncStorage.multiGet([
-      SESSION_TOKEN_KEY,
-      EXPIRY_KEY,
-      ENDPOINT_KEY
-    ]);
-    const [sessionToken, expiry, endpoint] = values.map(value => value[1]);
-    if (sessionToken && endpoint && expiry) {
-      setToken(sessionToken);
-      setExpiry(expiry);
-      setEndpoint(endpoint);
+    const values = await AsyncStorage.multiGet([BRANCH_CODE, USERNAME]);
+    const [branchCode, username] = values.map(value => value[1]);
+    if (branchCode && username) {
+      setBranchCode(branchCode);
+      setUsername(username);
     }
   };
 
@@ -86,9 +68,8 @@ export const AuthenticationContextProvider: FunctionComponent = ({
   return (
     <AuthenticationContext.Provider
       value={{
-        token,
-        expiry,
-        endpoint,
+        branchCode,
+        username,
         setAuthInfo,
         clearAuthInfo
       }}
