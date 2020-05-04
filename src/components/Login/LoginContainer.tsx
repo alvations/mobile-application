@@ -15,7 +15,6 @@ import { useAuthenticationContext } from "../../context/auth";
 import { size } from "../../common/styles";
 import { TopBackground } from "../Layout/TopBackground";
 import { Credits } from "../Credits";
-import { useConfigContext } from "../../context/config";
 import { AppName } from "../Layout/AppName";
 import * as Sentry from "sentry-expo";
 import { HelpModalContext } from "../../context/help";
@@ -55,7 +54,6 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
   }, []);
 
   const { branchCode, username } = useAuthenticationContext();
-  const { config } = useConfigContext();
   const showHelpModal = useContext(HelpModalContext);
   const messageContent = useContext(ImportantMessageContentContext);
 
@@ -75,13 +73,10 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
           style={{ alignItems: "center" }}
           behavior="padding"
         >
-          <TopBackground
-            style={{ height: "50%", maxHeight: "auto" }}
-            mode={config.appMode}
-          />
+          <TopBackground style={{ height: "50%", maxHeight: "auto" }} />
           <View style={styles.content}>
             <View style={styles.headerText}>
-              <AppName mode={config.appMode} />
+              <AppName />
             </View>
 
             {messageContent && (

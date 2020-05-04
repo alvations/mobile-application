@@ -17,7 +17,6 @@ import { Card } from "../Layout/Card";
 import { AppText } from "../Layout/AppText";
 import { TopBackground } from "../Layout/TopBackground";
 import { Credits } from "../Credits";
-import { useConfigContext } from "../../context/config";
 import {
   withNavigationFocus,
   NavigationFocusInjectedProps
@@ -67,7 +66,6 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
   const [shouldShowCamera, setShouldShowCamera] = useState(false);
   const [isScanningEnabled, setIsScanningEnabled] = useState(true);
   const [nricInput, setNricInput] = useState("");
-  const { config } = useConfigContext();
   const showHelpModal = useContext(HelpModalContext);
   const checkUpdates = useCheckUpdates();
 
@@ -121,11 +119,11 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
         scrollIndicatorInsets={{ right: 1 }}
         keyboardShouldPersistTaps="handled"
       >
-        <TopBackground mode={config.appMode} />
+        <TopBackground />
         <KeyboardAvoidingView behavior="position">
           <View style={styles.content}>
             <View style={styles.headerText}>
-              <AppHeader mode={config.appMode} />
+              <AppHeader />
             </View>
             {messageContent && (
               <View style={styles.bannerWrapper}>
