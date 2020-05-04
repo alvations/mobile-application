@@ -14,7 +14,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     alignItems: "center",
-    justifyContent: "center",
     backgroundColor: color("grey", 0)
   },
   cancelButtonWrapper: {
@@ -40,7 +39,7 @@ const Camera: FunctionComponent<Camera> = ({
   />
 );
 
-interface IdScanner extends Camera {
+export interface IdScanner extends Camera {
   onCancel: () => void;
   cancelButtonText: string;
   isScanningEnabled?: boolean;

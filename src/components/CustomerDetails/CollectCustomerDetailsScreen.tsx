@@ -21,7 +21,6 @@ import {
   withNavigationFocus,
   NavigationFocusInjectedProps
 } from "react-navigation";
-import { IdScanner } from "../IdScanner/IdScanner";
 import { BarCodeScannedCallback } from "expo-barcode-scanner";
 import { validateAndCleanNric } from "../../utils/validateNric";
 import { InputNricSection } from "./InputNricSection";
@@ -33,6 +32,7 @@ import { FeatureToggler } from "../FeatureToggler/FeatureToggler";
 import { Banner } from "../Layout/Banner";
 import { ImportantMessageContentContext } from "../../context/importantMessage";
 import { useCheckUpdates } from "../../hooks/useCheckUpdates";
+import { Scanner } from "./Scanner";
 
 const styles = StyleSheet.create({
   content: {
@@ -149,7 +149,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
       </ScrollView>
       <Credits style={{ bottom: size(3) }} />
       {shouldShowCamera && (
-        <IdScanner
+        <Scanner
           isScanningEnabled={isScanningEnabled}
           onBarCodeScanned={onBarCodeScanned}
           onCancel={() => setShouldShowCamera(false)}
