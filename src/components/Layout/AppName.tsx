@@ -6,14 +6,25 @@ import AppLogo from "../../../assets/Logo.svg";
 export const AppName: FunctionComponent = () => (
   <>
     {/* <AppLogo /> */}
-    <AppText
-      style={{
-        fontSize: fontSize(4),
-        color: color("grey", 0),
-        fontFamily: "brand-bold"
-      }}
-    >
-      SafeEntry
+    <AppText>
+      <AppText
+        style={{
+          fontSize: fontSize(4),
+          color: color("grey", 0),
+          fontFamily: "brand-regular"
+        }}
+      >
+        Safe
+      </AppText>
+      <AppText
+        style={{
+          fontSize: fontSize(4),
+          color: color("grey", 0),
+          fontFamily: "brand-bold"
+        }}
+      >
+        Entry
+      </AppText>
     </AppText>
   </>
 );
