@@ -12,7 +12,8 @@ import {
   KeyboardAvoidingView,
   Alert,
   Vibration,
-  Platform
+  Platform,
+  BackHandler
 } from "react-native";
 import { size } from "../../common/styles";
 import { Card } from "../Layout/Card";
@@ -88,6 +89,22 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
   const checkUpdates = useCheckUpdates();
   const { sessionToken, branchCode, username } = useAuthenticationContext();
   const { config } = useConfigContext();
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        if (shouldShowCamera) {
+          setShouldShowCamera(false);
+          return true;
+        }
+        return false;
+      }
+    );
+    return () => {
+      backHandler.remove();
+    };
+  }, [shouldShowCamera]);
 
   useEffect(() => {
     if (isFocused) {
