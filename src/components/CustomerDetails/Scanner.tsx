@@ -4,6 +4,7 @@ import { color, size } from "../../common/styles";
 import { SafeAreaView } from "react-navigation";
 import { IdScanner } from "../IdScanner/IdScanner";
 import { GantryModeToggler } from "./GantryModeToggler";
+import { DarkButton } from "../Layout/Buttons/DarkButton";
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -42,6 +43,17 @@ export const Scanner: FunctionComponent<IdScanner> = ({
   cancelButtonText,
   isScanningEnabled = true
 }) => {
+  const generate = () => {
+    const ids = [
+      "S0000001I",
+      "S0000002G",
+      "S0000003E",
+      "S0000004C",
+      "S0000005A"
+    ];
+    onBarCodeScanned({ data: ids[Math.floor(Math.random() * ids.length)] });
+  };
+
   return (
     <View style={styles.wrapper}>
       <SafeAreaView style={styles.content}>
@@ -56,6 +68,17 @@ export const Scanner: FunctionComponent<IdScanner> = ({
             onCancel={onCancel}
             cancelButtonText={cancelButtonText}
           />
+        </View>
+        <View
+          style={{
+            position: "absolute",
+            bottom: 400,
+            left: 0,
+            right: 0,
+            alignItems: "center"
+          }}
+        >
+          <DarkButton text="Mock scan" onPress={generate} />
         </View>
       </SafeAreaView>
     </View>

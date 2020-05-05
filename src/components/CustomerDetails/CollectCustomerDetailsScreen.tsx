@@ -33,6 +33,12 @@ import { Banner } from "../Layout/Banner";
 import { ImportantMessageContentContext } from "../../context/importantMessage";
 import { useCheckUpdates } from "../../hooks/useCheckUpdates";
 import { Scanner } from "./Scanner";
+import { TransactionResultModal } from "./TransactionResultModal";
+import { GantryModeToggler } from "./GantryModeToggler";
+import { createTransaction } from "../../services/transactions";
+import { useAuthenticationContext } from "../../context/auth";
+import { useConfigContext } from "../../context/config";
+import { CreateTransactionResult } from "../../types";
 
 const styles = StyleSheet.create({
   content: {
@@ -48,11 +54,25 @@ const styles = StyleSheet.create({
   },
   bannerWrapper: {
     marginBottom: size(1.5)
+  },
+  modeCardWrapper: {
+    marginBottom: size(1.5)
+  },
+  modeCardContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: -size(1)
   }
 });
 
+// type CheckState =
+//   | "AWAITING_ID"
+//   | "VALIDATING_ID"
+//   | "CREATING_TRANSACTION"
+//   | "TRANSACTION_COMPLETE";
+
 const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedProps> = ({
-  navigation,
   isFocused
 }) => {
   useEffect(() => {
@@ -81,12 +101,32 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
     }
   }, [isFocused, checkUpdates]);
 
+  const [showTransactionResultModal, setShowTransactionResultModal] = useState(
+    false
+  );
+  const [transactionResult, setTransactionResult] = useState<
+    CreateTransactionResult & { id: string }
+  >();
+  const { branchCode, username } = useAuthenticationContext();
+  const { config } = useConfigContext();
+
   const onCheck = async (input: string): Promise<void> => {
     try {
       setIsScanningEnabled(false);
       const nric = validateAndCleanNric(input);
       Vibration.vibrate(50);
-      navigation.navigate("CustomerQuotaScreen", { nric });
+      setShowTransactionResultModal(true);
+      // setTransactionResult({ id: nric });
+      const result = await createTransaction({
+        id: nric,
+        branchCode,
+        username,
+        gantryMode: config.gantryMode
+      });
+      setTransactionResult({
+        id: nric,
+        ...result
+      });
       setNricInput("");
     } catch (e) {
       setIsScanningEnabled(false);
@@ -130,9 +170,16 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
                 <Banner {...messageContent} />
               </View>
             )}
+            <View style={styles.modeCardWrapper}>
+              <Card>
+                <View style={styles.modeCardContent}>
+                  <GantryModeToggler />
+                </View>
+              </Card>
+            </View>
             <Card>
               <AppText>
-                Check the number of items your customer can purchase
+                Scan customer&apos;s NRIC/FIN or manually enter it
               </AppText>
               <InputNricSection
                 openCamera={() => setShouldShowCamera(true)}
@@ -156,6 +203,14 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
           cancelButtonText="Enter NRIC manually"
         />
       )}
+      <TransactionResultModal
+        isVisible={showTransactionResultModal}
+        onExit={() => {
+          setIsScanningEnabled(true);
+          setShowTransactionResultModal(false);
+        }}
+        {...transactionResult}
+      />
     </>
   );
 };
