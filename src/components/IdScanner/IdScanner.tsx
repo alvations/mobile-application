@@ -69,9 +69,9 @@ export const IdScanner: FunctionComponent<IdScanner> = ({
 
   return (
     <View style={styles.cameraWrapper}>
-      {hasCameraPermission && isScanningEnabled ? (
+      {hasCameraPermission ? (
         <Camera
-          onBarCodeScanned={onBarCodeScanned}
+          onBarCodeScanned={isScanningEnabled ? onBarCodeScanned : () => null}
           barCodeTypes={barCodeTypes}
         />
       ) : (
