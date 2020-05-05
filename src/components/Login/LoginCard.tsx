@@ -33,9 +33,13 @@ export const LoginCard: FunctionComponent<NavigationProps> = ({
     setIsLoading(true);
     try {
       const response = await validateLogin(branchCode, username);
-      console.log(response);
       setIsLoading(false);
-      setAuthInfo(branchCode, username);
+      setAuthInfo({
+        sessionToken: response.sessionToken,
+        expiry: response.ttl.getTime(),
+        branchCode,
+        username
+      });
       navigation.navigate("CollectCustomerDetailsScreen");
     } catch (e) {
       setIsLoading(false);

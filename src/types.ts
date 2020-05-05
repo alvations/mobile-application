@@ -86,9 +86,9 @@ export const PostTransactionResult = t.type({
 export type Transaction = t.TypeOf<typeof Transaction>;
 export type PostTransactionResult = t.TypeOf<typeof PostTransactionResult>;
 
-export const CreateTransactionResult = t.intersection([
+export const UpdateCountResult = t.intersection([
   t.type({
-    status: t.union([t.literal("success"), t.literal("failure")]),
+    status: t.union([t.literal("success"), t.literal("fail")]),
     message: t.string
   }),
   t.partial({
@@ -96,4 +96,4 @@ export const CreateTransactionResult = t.intersection([
   })
 ]);
 
-export type CreateTransactionResult = t.TypeOf<typeof CreateTransactionResult>;
+export type UpdateCountResult = t.TypeOf<typeof UpdateCountResult>;

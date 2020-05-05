@@ -72,7 +72,7 @@ export const Scanner: FunctionComponent<IdScanner> = ({
         <View
           style={{
             position: "absolute",
-            bottom: 400,
+            bottom: 200,
             left: 0,
             right: 0,
             alignItems: "center"

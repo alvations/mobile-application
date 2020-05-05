@@ -4,6 +4,8 @@ import { SessionCredentials } from "../../types";
 import { fetchWithValidator, ValidationError } from "../helpers";
 import * as Sentry from "sentry-expo";
 
+const endpoint = process.env.DEV_ENDPOINT;
+
 export class LoginError extends Error {
   constructor(message: string) {
     super(message);
@@ -83,16 +85,35 @@ export const validateOTP = IS_MOCK ? mockValidateOTP : liveValidateOTP;
 export const liveValidateLogin = async (
   branchCode: string,
   username: string
-): Promise<boolean> => {
-  return true;
+): Promise<SessionCredentials> => {
+  const payload = { code: branchCode, name: username };
+  try {
+    const response = await fetchWithValidator(
+      SessionCredentials,
+      `${endpoint}/logins/create_clicker_login`,
+      {
+        method: "POST",
+        body: JSON.stringify(payload)
+      }
+    );
+    return response;
+  } catch (e) {
+    if (e instanceof ValidationError) {
+      Sentry.captureException(e);
+    }
+    throw new LoginError(e.message);
+  }
 };
 
 export const mockValidateLogin = async (
-  branchCode: string,
-  username: string
-): Promise<boolean> => {
-  await new Promise(res => setTimeout(() => res("done"), 2000));
-  return true;
+  _branchCode: string,
+  _username: string
+): Promise<SessionCredentials> => {
+  await new Promise(res => setTimeout(() => res("done"), 500));
+  return {
+    sessionToken: "some-valid-session-token",
+    ttl: new Date(2030, 0, 1)
+  };
 };
 
 export const validateLogin = IS_MOCK ? mockValidateLogin : liveValidateLogin;

@@ -2,7 +2,8 @@ import React, {
   FunctionComponent,
   useState,
   useEffect,
-  useContext
+  useContext,
+  useCallback
 } from "react";
 import {
   View,
@@ -10,7 +11,8 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Alert,
-  Vibration
+  Vibration,
+  Platform
 } from "react-native";
 import { size } from "../../common/styles";
 import { Card } from "../Layout/Card";
@@ -22,7 +24,6 @@ import {
   NavigationFocusInjectedProps
 } from "react-navigation";
 import { BarCodeScannedCallback } from "expo-barcode-scanner";
-import { validateAndCleanNric } from "../../utils/validateNric";
 import { InputNricSection } from "./InputNricSection";
 import { AppHeader } from "../Layout/AppHeader";
 import * as Sentry from "sentry-expo";
@@ -33,12 +34,11 @@ import { Banner } from "../Layout/Banner";
 import { ImportantMessageContentContext } from "../../context/importantMessage";
 import { useCheckUpdates } from "../../hooks/useCheckUpdates";
 import { Scanner } from "./Scanner";
-import { TransactionResultModal } from "./TransactionResultModal";
+import { UpdateCountResultModal } from "./UpdateCountResultModal";
 import { GantryModeToggler } from "./GantryModeToggler";
-import { createTransaction } from "../../services/transactions";
 import { useAuthenticationContext } from "../../context/auth";
 import { useConfigContext } from "../../context/config";
-import { CreateTransactionResult } from "../../types";
+import { useClicker } from "../../hooks/useClicker/useClicker";
 
 const styles = StyleSheet.create({
   content: {
@@ -66,11 +66,10 @@ const styles = StyleSheet.create({
   }
 });
 
-// type CheckState =
-//   | "AWAITING_ID"
-//   | "VALIDATING_ID"
-//   | "CREATING_TRANSACTION"
-//   | "TRANSACTION_COMPLETE";
+const showAlert = (message: string, onDismiss: () => void): void =>
+  Alert.alert("Error", message, [{ text: "Dimiss", onPress: onDismiss }], {
+    onDismiss // for android outside alert clicks
+  });
 
 const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedProps> = ({
   isFocused
@@ -84,16 +83,11 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
 
   const messageContent = useContext(ImportantMessageContentContext);
   const [shouldShowCamera, setShouldShowCamera] = useState(false);
-  const [isScanningEnabled, setIsScanningEnabled] = useState(true);
   const [nricInput, setNricInput] = useState("");
   const showHelpModal = useContext(HelpModalContext);
   const checkUpdates = useCheckUpdates();
-
-  useEffect(() => {
-    if (isFocused) {
-      setIsScanningEnabled(true);
-    }
-  }, [isFocused]);
+  const { sessionToken, branchCode, username } = useAuthenticationContext();
+  const { config } = useConfigContext();
 
   useEffect(() => {
     if (isFocused) {
@@ -101,54 +95,34 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
     }
   }, [isFocused, checkUpdates]);
 
-  const [showTransactionResultModal, setShowTransactionResultModal] = useState(
-    false
-  );
-  const [transactionResult, setTransactionResult] = useState<
-    CreateTransactionResult & { id: string }
-  >();
-  const { branchCode, username } = useAuthenticationContext();
-  const { config } = useConfigContext();
+  const {
+    clickerState,
+    updateCount,
+    updateCountResult,
+    error,
+    resetState
+  } = useClicker(sessionToken, branchCode, username);
 
-  const onCheck = async (input: string): Promise<void> => {
-    try {
-      setIsScanningEnabled(false);
-      const nric = validateAndCleanNric(input);
-      Vibration.vibrate(50);
-      setShowTransactionResultModal(true);
-      // setTransactionResult({ id: nric });
-      const result = await createTransaction({
-        id: nric,
-        branchCode,
-        username,
-        gantryMode: config.gantryMode
-      });
-      setTransactionResult({
-        id: nric,
-        ...result
-      });
-      setNricInput("");
-    } catch (e) {
-      setIsScanningEnabled(false);
-      Alert.alert(
-        "Error",
-        e.message || e,
-        [
-          {
-            text: "Dimiss",
-            onPress: () => setIsScanningEnabled(true)
-          }
-        ],
-        {
-          onDismiss: () => setIsScanningEnabled(true) // for android outside alert clicks
-        }
-      );
+  const onCancel = useCallback((): void => {
+    resetState();
+  }, [resetState]);
+
+  useEffect(() => {
+    if (error) {
+      showAlert(error.message, onCancel);
     }
-  };
+  }, [error, onCancel]);
 
+  useEffect(() => {
+    if (Platform.OS === "android" && clickerState === "UPDATING_COUNT") {
+      Vibration.vibrate(50);
+    }
+  }, [clickerState]);
+
+  const isScanningEnabled = isFocused && clickerState === "DEFAULT" && !error;
   const onBarCodeScanned: BarCodeScannedCallback = event => {
-    if (isFocused && isScanningEnabled && event.data) {
-      onCheck(event.data);
+    if (isScanningEnabled && event.data) {
+      updateCount(event.data, config.gantryMode);
     }
   };
 
@@ -185,7 +159,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
                 openCamera={() => setShouldShowCamera(true)}
                 nricInput={nricInput}
                 setNricInput={setNricInput}
-                submitNric={() => onCheck(nricInput)}
+                submitNric={() => updateCount(nricInput, config.gantryMode)}
               />
             </Card>
             <FeatureToggler feature="HELP_MODAL">
@@ -203,13 +177,10 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
           cancelButtonText="Enter NRIC manually"
         />
       )}
-      <TransactionResultModal
-        isVisible={showTransactionResultModal}
-        onExit={() => {
-          setIsScanningEnabled(true);
-          setShowTransactionResultModal(false);
-        }}
-        {...transactionResult}
+      <UpdateCountResultModal
+        updateCountResult={updateCountResult}
+        isVisible={clickerState === "RESULT_RETURNED"}
+        onExit={resetState}
       />
     </>
   );
