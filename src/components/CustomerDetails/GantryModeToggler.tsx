@@ -7,13 +7,13 @@ import { useConfigContext, GantryMode } from "../../context/config";
 import { Feather } from "@expo/vector-icons";
 
 const styles = StyleSheet.create({
-  headerText: {
+  label: {
     fontSize: fontSize(-2),
     lineHeight: fontSize(-2),
     marginBottom: 2
   },
   gantryModeText: {
-    fontSize: fontSize(2),
+    fontSize: fontSize(1),
     fontFamily: "brand-bold"
   }
 });
@@ -33,7 +33,7 @@ export const GantryModeToggler: FunctionComponent = () => {
   return (
     <>
       <View>
-        <AppText style={styles.headerText}>Current mode:</AppText>
+        <AppText style={styles.label}>Current mode</AppText>
         <AppText style={styles.gantryModeText}>{config.gantryMode}</AppText>
       </View>
       <SecondaryButton

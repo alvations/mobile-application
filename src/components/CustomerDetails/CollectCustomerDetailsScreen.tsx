@@ -15,7 +15,7 @@ import {
   Platform,
   BackHandler
 } from "react-native";
-import { size } from "../../common/styles";
+import { size, color } from "../../common/styles";
 import { Card } from "../Layout/Card";
 import { AppText } from "../Layout/AppText";
 import { TopBackground } from "../Layout/TopBackground";
@@ -40,6 +40,7 @@ import { GantryModeToggler } from "./GantryModeToggler";
 import { useAuthenticationContext } from "../../context/auth";
 import { useConfigContext } from "../../context/config";
 import { useClicker } from "../../hooks/useClicker/useClicker";
+import { LocationDetails } from "./LocationDetails";
 
 const styles = StyleSheet.create({
   content: {
@@ -50,20 +51,28 @@ const styles = StyleSheet.create({
     width: 512,
     maxWidth: "100%"
   },
-  headerText: {
+  headerBar: {
     marginBottom: size(4)
   },
   bannerWrapper: {
     marginBottom: size(1.5)
   },
-  modeCardWrapper: {
+  metaCardWrapper: {
     marginBottom: size(1.5)
   },
-  modeCardContent: {
+  metaCardContent: {
+    marginBottom: -size(1)
+  },
+  modeWrapper: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: -size(1)
+    alignItems: "center"
+  },
+  horizontalRule: {
+    borderBottomColor: color("grey", 30),
+    marginVertical: size(3),
+    marginHorizontal: -size(3),
+    borderBottomWidth: 1
   }
 });
 
@@ -153,7 +162,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
         <KeyboardAvoidingView behavior="padding">
           <TopBackground />
           <View style={styles.content}>
-            <View style={styles.headerText}>
+            <View style={styles.headerBar}>
               <AppHeader />
             </View>
             {messageContent && (
@@ -161,10 +170,14 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
                 <Banner {...messageContent} />
               </View>
             )}
-            <View style={styles.modeCardWrapper}>
+            <View style={styles.metaCardWrapper}>
               <Card>
-                <View style={styles.modeCardContent}>
-                  <GantryModeToggler />
+                <View style={styles.metaCardContent}>
+                  <LocationDetails />
+                  <View style={styles.horizontalRule} />
+                  <View style={styles.modeWrapper}>
+                    <GantryModeToggler />
+                  </View>
                 </View>
               </Card>
             </View>
