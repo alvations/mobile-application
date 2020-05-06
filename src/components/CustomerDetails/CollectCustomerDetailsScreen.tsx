@@ -130,11 +130,13 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
   } = useClicker(sessionToken, branchCode, username);
 
   const onCancel = useCallback((): void => {
+    setNricInput("");
     resetState();
   }, [resetState]);
 
   useEffect(() => {
     if (error) {
+      setNricInput("");
       showAlert(error.message, onCancel);
     }
   }, [error, onCancel]);
@@ -210,7 +212,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
       <UpdateCountResultModal
         updateCountResult={updateCountResult}
         isVisible={clickerState === "RESULT_RETURNED"}
-        onExit={resetState}
+        onExit={onCancel}
       />
     </>
   );
