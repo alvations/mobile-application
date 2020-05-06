@@ -62,7 +62,7 @@ const Toggle: FunctionComponent<Toggle> = ({ isChecked }) => {
       ]}
     >
       {isChecked && (
-        <Feather name="check" size={size(2.5)} color={color("grey", 80)} />
+        <Feather name="check" size={size(2.5)} color={color("grey", 70)} />
       )}
     </View>
   );

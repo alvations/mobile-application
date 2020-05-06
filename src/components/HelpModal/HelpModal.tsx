@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
 });
 
 const NavigationIcon: FunctionComponent<{ name: string }> = ({ name }) => (
-  <Feather name={name} size={size(3)} color={color("blue", 50)} />
+  <Feather name={name} size={size(3)} color={color("grey", 70)} />
 );
 
 const NavigationButton: FunctionComponent<{

@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
     fontWeight: "bold",
     fontSize: fontSize(1),
-    color: color("blue", 50),
+    color: color("grey", 70),
     borderBottomColor: color("grey", 30),
     borderBottomWidth: 1,
     textAlign: "center",

@@ -4,8 +4,8 @@ import { color } from "../../common/styles";
 import { ViewProps } from "react-native";
 
 export const TopBackground: FunctionComponent<ViewProps> = ({ style }) => {
-  const primaryColor = color("red", 10);
-  const secondaryColor = color("red", 10);
+  const primaryColor = color("red", 40);
+  const secondaryColor = color("red", 60);
   return (
     <LinearGradient
       style={[
@@ -19,8 +19,8 @@ export const TopBackground: FunctionComponent<ViewProps> = ({ style }) => {
         style
       ]}
       colors={[primaryColor, secondaryColor]}
-      start={[0.5, 0]}
-      end={[-0.5, 1.8]}
+      start={[1, -0.5]}
+      end={[0, 1]}
     />
   );
 };

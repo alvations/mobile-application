@@ -54,13 +54,13 @@ export const AppHeaderComponent: FunctionComponent<NavigationProps> = ({
             alignItems: "flex-end"
           }}
         >
-          <AppText style={{ color: color("grey", 80), marginRight: size(0.5) }}>
+          <AppText style={{ color: color("grey", 0), marginRight: size(0.5) }}>
             Logout
           </AppText>
           <MaterialCommunityIcons
             name="logout"
             size={size(2)}
-            color={color("grey", 80)}
+            color={color("grey", 0)}
           />
         </View>
       </TouchableOpacity>
