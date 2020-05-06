@@ -27,7 +27,6 @@ import { LoginCard } from "./LoginCard";
 const styles = StyleSheet.create({
   content: {
     padding: size(2),
-    marginTop: -size(3),
     width: 512,
     maxWidth: "100%",
     height: "100%",
@@ -66,13 +65,11 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
   return (
     <>
       <ScrollView
-        contentContainerStyle={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1, alignItems: "center" }}
+        scrollIndicatorInsets={{ right: 1 }}
         keyboardShouldPersistTaps="handled"
       >
-        <KeyboardAvoidingView
-          style={{ alignItems: "center" }}
-          behavior="padding"
-        >
+        <KeyboardAvoidingView behavior="padding">
           <TopBackground style={{ height: "50%", maxHeight: "auto" }} />
           <View style={styles.content}>
             <View style={styles.headerText}>
@@ -90,10 +87,10 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
             <FeatureToggler feature="HELP_MODAL">
               <HelpButton onPress={showHelpModal} />
             </FeatureToggler>
+            <Credits style={{ marginTop: size(5) }} />
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
-      <Credits style={{ bottom: size(3) }} />
     </>
   );
 };

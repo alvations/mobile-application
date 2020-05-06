@@ -150,8 +150,8 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
         scrollIndicatorInsets={{ right: 1 }}
         keyboardShouldPersistTaps="handled"
       >
-        <TopBackground />
-        <KeyboardAvoidingView behavior="position">
+        <KeyboardAvoidingView behavior="padding">
+          <TopBackground />
           <View style={styles.content}>
             <View style={styles.headerText}>
               <AppHeader />
@@ -182,10 +182,10 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
             <FeatureToggler feature="HELP_MODAL">
               <HelpButton onPress={showHelpModal} />
             </FeatureToggler>
+            <Credits style={{ marginTop: size(5) }} />
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
-      <Credits style={{ bottom: size(3) }} />
       {shouldShowCamera && (
         <Scanner
           isScanningEnabled={isScanningEnabled}
