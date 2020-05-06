@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "SupplyAlly",
-    "slug": "rationally",
+    "name": "SafeEntry",
+    "slug": "safe-entry",
     "privacy": "public",
     "sdkVersion": "35.0.0",
     "platforms": ["ios", "android", "web"],
-    "version": "3.3.0",
+    "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "supplyally",
+    "scheme": "safeentry",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splashscreen.png",
@@ -20,14 +20,14 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "sg.gov.tech.musket",
+      "bundleIdentifier": "sg.gov.tech.safeentry",
       "splash": {
         "image": "./assets/splashscreen.png",
         "tabletImage": "./assets/splashscreen-tablet.png",
         "backgroundColor": "#F1FAFA"
       },
       "infoPlist": {
-        "NSCameraUsageDescription": "SupplyAlly requires access to your camera to scan QR codes/barcodes.",
+        "NSCameraUsageDescription": "SafeEntry requires access to your camera to scan QR codes/barcodes.",
         "NSPhotoLibraryUsageDescription": "This permission is not needed by the app, but it is required by an underlying API. If you see this dialog, contact us.",
         "NSPhotoLibraryAddUsageDescription": "This permission is not needed by the app, but it is required by an underlying API. If you see this dialog, contact us.",
         "NSLocationWhenInUseUsageDescription": "This permission is not needed by the app, but it is required by an underlying API. If you see this dialog, contact us.",
@@ -42,8 +42,8 @@
       }
     },
     "android": {
-      "versionCode": 33,
-      "package": "sg.gov.tech.musket"
+      "versionCode": 1,
+      "package": "sg.gov.tech.safeentry"
     },
     "packagerOpts": {
       "config": "metro.config.js",
