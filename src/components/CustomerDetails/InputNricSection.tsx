@@ -83,6 +83,8 @@ export const InputNricSection: FunctionComponent<InputNricSection> = ({
               value={nricInput}
               onChange={({ nativeEvent: { text } }) => setNricInput(text)}
               onSubmitEditing={submitNric}
+              blurOnSubmit={false}
+              enablesReturnKeyAutomatically={true}
             />
           </View>
           <SecondaryButton text={config.gantryMode} onPress={submitNric} />
