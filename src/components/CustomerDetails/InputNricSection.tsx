@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     fontFamily: "brand-bold"
   },
   manualInputWrapper: {
-    marginTop: size(6)
+    marginTop: size(4)
   },
   inputAndButtonWrapper: {
     marginTop: size(1),
