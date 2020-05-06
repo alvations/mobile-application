@@ -10,7 +10,7 @@ export const AppName: FunctionComponent = () => (
       <AppText
         style={{
           fontSize: fontSize(4),
-          color: color("grey", 0),
+          color: color("red", 50),
           fontFamily: "brand-regular"
         }}
       >
@@ -19,7 +19,7 @@ export const AppName: FunctionComponent = () => (
       <AppText
         style={{
           fontSize: fontSize(4),
-          color: color("grey", 0),
+          color: color("red", 50),
           fontFamily: "brand-bold"
         }}
       >

@@ -51,7 +51,7 @@ const palette: { [color in ColorName]: { [tone: string]: string } } = {
     "20": "#FFE3E3",
     "30": "#FFD1D1",
     "40": "#FB8383",
-    "50": "#F94343",
+    "50": "#FF6565",
     "60": "#D14541"
   }
 };

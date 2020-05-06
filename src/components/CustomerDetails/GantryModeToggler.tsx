@@ -40,7 +40,7 @@ export const GantryModeToggler: FunctionComponent = () => {
         text="Switch mode"
         onPress={toggleMode}
         icon={
-          <Feather name="shuffle" size={size(1.5)} color={color("blue", 50)} />
+          <Feather name="shuffle" size={size(1.5)} color={color("red", 50)} />
         }
       />
     </>
