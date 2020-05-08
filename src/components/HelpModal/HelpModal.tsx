@@ -13,7 +13,7 @@ import { size, color, borderRadius, fontSize } from "../../common/styles";
 import { AppText } from "../Layout/AppText";
 import { SafeAreaView } from "react-navigation";
 
-const BASE_URL = "https://supplyallyhelp.zendesk.com/hc/en-us";
+const BASE_URL = "https://safeentry.zendesk.com/hc/en-us";
 const FEEDBACK_URL = BASE_URL + "/requests/new";
 
 const styles = StyleSheet.create({
