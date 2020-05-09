@@ -93,6 +93,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
 
   const messageContent = useContext(ImportantMessageContentContext);
   const [shouldShowCamera, setShouldShowCamera] = useState(false);
+  const [count, setCount] = useState(0);
   const [nricInput, setNricInput] = useState("");
   const showHelpModal = useContext(HelpModalContext);
   const checkUpdates = useCheckUpdates();
@@ -146,6 +147,11 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
       Vibration.vibrate(50);
     }
   }, [clickerState]);
+  useEffect(() => {
+    if (updateCountResult && updateCountResult.count) {
+      setCount(updateCountResult.count);
+    }
+  }, [updateCountResult]);
 
   const isScanningEnabled = isFocused && clickerState === "DEFAULT" && !error;
   const onBarCodeScanned: BarCodeScannedCallback = event => {
@@ -175,7 +181,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
             <View style={styles.metaCardWrapper}>
               <Card>
                 <View style={styles.metaCardContent}>
-                  <LocationDetails />
+                  <LocationDetails location={username} count={count} />
                   <View style={styles.horizontalRule} />
                   <View style={styles.modeWrapper}>
                     <GantryModeToggler />

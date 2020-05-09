@@ -17,7 +17,11 @@ export interface UpdateCountResultExpanded extends UpdateCountResult {
 
 export type ClickerHook = {
   clickerState: ClickerState;
-  updateCount: (id: string, gantryMode: GantryMode) => void;
+  updateCount: (
+    id: string,
+    gantryMode: GantryMode,
+    bypassRestriction?: boolean
+  ) => void;
   updateCountResult?: UpdateCountResultExpanded;
   error?: Error;
   resetState: () => void;
@@ -41,7 +45,7 @@ export const useClicker = (
   }, []);
 
   const updateCount: ClickerHook["updateCount"] = useCallback(
-    (id, gantryMode) => {
+    (id, gantryMode, bypassRestriction = false) => {
       const update = async (): Promise<void> => {
         setClickerState("VALIDATING_ID");
         let cleanedId;
@@ -64,7 +68,7 @@ export const useClicker = (
             username,
             sessionToken,
             gantryMode,
-            bypassRestriction: false
+            bypassRestriction
           });
           setUpdateCountResult({
             ...result,

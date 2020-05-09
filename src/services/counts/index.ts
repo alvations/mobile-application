@@ -2,6 +2,7 @@ import { IS_MOCK } from "../../config";
 import { UpdateCountResult } from "../../types";
 import { GantryMode } from "../../context/config";
 import { fetchWithValidator, ValidationError } from "../helpers";
+import { configure } from "@storybook/react-native";
 
 const endpoint = process.env.DEV_ENDPOINT;
 
@@ -61,7 +62,7 @@ export const liveUpdateCount = async ({
   username,
   sessionToken,
   gantryMode,
-  bypassRestriction
+  bypassRestriction = false
 }: UpdateCount): Promise<UpdateCountResult> => {
   try {
     const payload = {

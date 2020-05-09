@@ -19,16 +19,24 @@ const styles = StyleSheet.create({
   }
 });
 
-export const LocationDetails: FunctionComponent = () => {
+interface LocationInfoSection {
+  location: string;
+  count: number;
+}
+
+export const LocationDetails: FunctionComponent<LocationInfoSection> = ({
+  location,
+  count
+}) => {
   return (
     <View style={styles.wrapper}>
       <View style={{ flex: 2 }}>
         <AppText style={styles.label}>Location</AppText>
-        <AppText style={styles.itemText}>SupermarketCo Vivocity</AppText>
+        <AppText style={styles.itemText}>{location}</AppText>
       </View>
       <View style={{ flex: 1, marginLeft: size(3) }}>
         <AppText style={styles.label}>Visitors</AppText>
-        <AppText style={styles.itemText}>23</AppText>
+        <AppText style={styles.itemText}>{count}</AppText>
       </View>
     </View>
   );
