@@ -43,6 +43,7 @@ import { useConfigContext } from "../../context/config";
 import { useClicker } from "../../hooks/useClicker/useClicker";
 import { LocationDetails } from "./LocationDetails";
 import { useValidateExpiry } from "../../hooks/useValidateExpiry";
+import { useClickerDetails } from "../../hooks/useClickerDetails/useClickerDetails";
 
 const styles = StyleSheet.create({
   content: {
@@ -145,18 +146,21 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
 
   const {
     clickerState,
-    countState,
-    nameState,
-    getInitialCountInfo,
     updateCount,
     updateCountResult,
     error,
     resetState
   } = useClicker(sessionToken, clickerUuid, username);
 
+  const { getClickerDetails, count, name } = useClickerDetails(
+    sessionToken,
+    clickerUuid
+  );
+
   useEffect(() => {
-    getInitialCountInfo();
-  }, [getInitialCountInfo]);
+    getClickerDetails();
+  }, [getClickerDetails]);
+
   const onCancel = useCallback((): void => {
     setNricInput("");
     resetState();
@@ -205,8 +209,8 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
               <Card>
                 <View style={styles.metaCardContent}>
                   <LocationDetails
-                    location={`${nameState} (${username})`}
-                    count={countState}
+                    location={`${name} (${username})`}
+                    count={count}
                   />
                   <View style={styles.horizontalRule} />
                   <View style={styles.modeWrapper}>

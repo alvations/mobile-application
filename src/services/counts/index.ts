@@ -1,5 +1,5 @@
 import { IS_MOCK } from "../../config";
-import { UpdateCountResult, CountInfoResult } from "../../types";
+import { UpdateCountResult, ClickerDetails } from "../../types";
 import { GantryMode } from "../../context/config";
 import { fetchWithValidator, ValidationError } from "../helpers";
 
@@ -9,6 +9,13 @@ export class UpdateCountError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "UpdateCountError";
+  }
+}
+
+export class GetClickerDetailsError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "GetClickerDetailsError";
   }
 }
 
@@ -100,10 +107,20 @@ export const liveUpdateCount = async ({
   }
 };
 
-export const retrieveCountInfo = async (
+export const mockGetClickerDetails = async (
+  _clickerUuid: string,
+  _sessionToken: string
+): Promise<ClickerDetails> => {
+  return {
+    count: 10,
+    name: "Clicker name"
+  };
+};
+
+export const liveGetClickerDetails = async (
   clickerUuid: string,
   sessionToken: string
-): Promise<CountInfoResult> => {
+): Promise<ClickerDetails> => {
   try {
     const headers = {
       CROWD_GO_WHERE_TOKEN: process.env.CLIENT_API_KEY,
@@ -113,7 +130,7 @@ export const retrieveCountInfo = async (
     };
     const fullEndpoint = `${endpoint}/entries/retrieve_entries_info?clickerUuid=${clickerUuid}`;
     const response = await fetchWithValidator(
-      CountInfoResult,
+      ClickerDetails,
       encodeURI(fullEndpoint),
       {
         method: "GET",
@@ -125,8 +142,11 @@ export const retrieveCountInfo = async (
     if (e instanceof ValidationError) {
       // Sentry.captureException(e);
     }
-    throw new UpdateCountError(e.message);
+    throw new GetClickerDetailsError(e.message);
   }
 };
 
 export const updateCount = IS_MOCK ? mockUpdateCount : liveUpdateCount;
+export const getClickerDetails = IS_MOCK
+  ? mockGetClickerDetails
+  : liveGetClickerDetails;
