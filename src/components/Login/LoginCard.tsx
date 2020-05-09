@@ -38,7 +38,6 @@ export const LoginCard: FunctionComponent<NavigationProps> = ({
         sessionToken: response.sessionToken,
         clickerUuid: response.clickerUuid,
         expiry: response.ttl.getTime(),
-        branchCode,
         username
       });
       navigation.navigate("CollectCustomerDetailsScreen");

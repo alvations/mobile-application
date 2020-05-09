@@ -52,15 +52,15 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
     Sentry.addBreadcrumb({ category: "navigation", message: "LoginContainer" });
   }, []);
 
-  const { branchCode, username } = useAuthenticationContext();
+  const { sessionToken } = useAuthenticationContext();
   const showHelpModal = useContext(HelpModalContext);
   const messageContent = useContext(ImportantMessageContentContext);
 
   useLayoutEffect(() => {
-    if (branchCode && username) {
+    if (sessionToken) {
       navigation.navigate("CollectCustomerDetailsScreen");
     }
-  }, [branchCode, navigation, username]);
+  }, [navigation, sessionToken]);
 
   return (
     <>
