@@ -21,11 +21,7 @@ const styles = StyleSheet.create({
   topBar: {
     marginTop: size(0.5),
     marginBottom: size(2),
-    marginHorizontal: size(2),
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    alignSelf: "stretch"
+    marginHorizontal: size(2)
   },
   cancelButtonWrapper: {
     marginTop: size(3)

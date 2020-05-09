@@ -1,7 +1,9 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { AppText } from "../Layout/AppText";
 import { fontSize, size } from "../../common/styles";
+import { useAuthenticationContext } from "../../context/auth";
+import { useClickerDetails } from "../../hooks/useClickerDetails/useClickerDetails";
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -19,20 +21,24 @@ const styles = StyleSheet.create({
   }
 });
 
-interface LocationInfoSection {
-  location: string;
-  count: number;
-}
+export const LocationDetails: FunctionComponent = () => {
+  const { sessionToken, username, clickerUuid } = useAuthenticationContext();
+  const { getClickerDetails, count, name } = useClickerDetails(
+    sessionToken,
+    clickerUuid
+  );
 
-export const LocationDetails: FunctionComponent<LocationInfoSection> = ({
-  location,
-  count
-}) => {
+  useEffect(() => {
+    getClickerDetails();
+  }, [getClickerDetails]);
+
   return (
     <View style={styles.wrapper}>
-      <View style={{ flex: 2 }}>
+      <View style={{ flex: 3 }}>
         <AppText style={styles.label}>Location</AppText>
-        <AppText style={styles.itemText}>{location}</AppText>
+        <AppText style={styles.itemText}>
+          {name} ({username})
+        </AppText>
       </View>
       <View style={{ flex: 1, marginLeft: size(3) }}>
         <AppText style={styles.label}>Visitors</AppText>

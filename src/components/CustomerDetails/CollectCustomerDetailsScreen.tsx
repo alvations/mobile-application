@@ -16,7 +16,7 @@ import {
   BackHandler,
   Keyboard
 } from "react-native";
-import { size, color } from "../../common/styles";
+import { size } from "../../common/styles";
 import { Card } from "../Layout/Card";
 import { AppText } from "../Layout/AppText";
 import { TopBackground } from "../Layout/TopBackground";
@@ -37,13 +37,11 @@ import { ImportantMessageContentContext } from "../../context/importantMessage";
 import { useCheckUpdates } from "../../hooks/useCheckUpdates";
 import { Scanner } from "./Scanner";
 import { UpdateCountResultModal } from "./UpdateCountResultModal";
-import { GantryModeToggler } from "./GantryModeToggler";
 import { useAuthenticationContext } from "../../context/auth";
 import { useConfigContext } from "../../context/config";
-import { useClicker } from "../../hooks/useClicker/useClicker";
-import { LocationDetails } from "./LocationDetails";
 import { useValidateExpiry } from "../../hooks/useValidateExpiry";
-import { useClickerDetails } from "../../hooks/useClickerDetails/useClickerDetails";
+import { MetaDataCard } from "./MetaDataCard";
+import { useClickerCount } from "../../hooks/useClickerCount/useClickerCount";
 
 const styles = StyleSheet.create({
   content: {
@@ -57,25 +55,8 @@ const styles = StyleSheet.create({
   headerBar: {
     marginBottom: size(4)
   },
-  bannerWrapper: {
+  rowWrapper: {
     marginBottom: size(1.5)
-  },
-  metaCardWrapper: {
-    marginBottom: size(1.5)
-  },
-  metaCardContent: {
-    marginBottom: -size(1)
-  },
-  modeWrapper: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center"
-  },
-  horizontalRule: {
-    borderBottomColor: color("grey", 30),
-    marginVertical: size(3),
-    marginHorizontal: -size(3),
-    borderBottomWidth: 1
   }
 });
 
@@ -145,21 +126,12 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
   }, [isFocused, validateTokenExpiry, shouldShowCamera]);
 
   const {
-    clickerState,
+    updateCountState,
     updateCount,
     updateCountResult,
     error,
     resetState
-  } = useClicker(sessionToken, clickerUuid, username);
-
-  const { getClickerDetails, count, name } = useClickerDetails(
-    sessionToken,
-    clickerUuid
-  );
-
-  useEffect(() => {
-    getClickerDetails();
-  }, [getClickerDetails]);
+  } = useClickerCount(sessionToken, clickerUuid, username);
 
   const onCancel = useCallback((): void => {
     setNricInput("");
@@ -175,12 +147,13 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
 
   // Vibrate when clicker is updating its count
   useEffect(() => {
-    if (Platform.OS === "android" && clickerState === "UPDATING_COUNT") {
+    if (Platform.OS === "android" && updateCountState === "UPDATING_COUNT") {
       Vibration.vibrate(50);
     }
-  }, [clickerState]);
+  }, [updateCountState]);
 
-  const isScanningEnabled = isFocused && clickerState === "DEFAULT" && !error;
+  const isScanningEnabled =
+    isFocused && updateCountState === "DEFAULT" && !error;
   const onBarCodeScanned: BarCodeScannedCallback = event => {
     if (isScanningEnabled && event.data) {
       updateCount(event.data, config.gantryMode);
@@ -201,23 +174,12 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
               <AppHeader />
             </View>
             {messageContent && (
-              <View style={styles.bannerWrapper}>
+              <View style={styles.rowWrapper}>
                 <Banner {...messageContent} />
               </View>
             )}
-            <View style={styles.metaCardWrapper}>
-              <Card>
-                <View style={styles.metaCardContent}>
-                  <LocationDetails
-                    location={`${name} (${username})`}
-                    count={count}
-                  />
-                  <View style={styles.horizontalRule} />
-                  <View style={styles.modeWrapper}>
-                    <GantryModeToggler />
-                  </View>
-                </View>
-              </Card>
+            <View style={styles.rowWrapper}>
+              <MetaDataCard />
             </View>
             <Card>
               <AppText>
@@ -247,7 +209,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
       )}
       <UpdateCountResultModal
         updateCountResult={updateCountResult}
-        isVisible={clickerState === "RESULT_RETURNED"}
+        isVisible={updateCountState === "RESULT_RETURNED"}
         onExit={onCancel}
       />
     </>

@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { validateAndCleanNric } from "../../utils/validateNric";
 import { updateCount as updateCountService } from "../../services/counts";
 
-type ClickerState =
+type UpdateCountState =
   | "DEFAULT"
   | "VALIDATING_ID"
   | "UPDATING_COUNT"
@@ -15,8 +15,8 @@ export interface UpdateCountResultExpanded extends UpdateCountResult {
   gantryMode: GantryMode;
 }
 
-export type ClickerHook = {
-  clickerState: ClickerState;
+export type ClickerCountHook = {
+  updateCountState: UpdateCountState;
   updateCount: (
     id: string,
     gantryMode: GantryMode,
@@ -27,26 +27,28 @@ export type ClickerHook = {
   resetState: () => void;
 };
 
-export const useClicker = (
+export const useClickerCount = (
   sessionToken: string,
   clickerUuid: string,
   username: string
-): ClickerHook => {
-  const [clickerState, setClickerState] = useState<ClickerState>("DEFAULT");
+): ClickerCountHook => {
+  const [updateCountState, setUpdateCountState] = useState<UpdateCountState>(
+    "DEFAULT"
+  );
   const [updateCountResult, setUpdateCountResult] = useState<
-    ClickerHook["updateCountResult"]
+    ClickerCountHook["updateCountResult"]
   >();
   const [error, setError] = useState<Error>();
   const resetState = useCallback((): void => {
-    setClickerState("DEFAULT");
+    setUpdateCountState("DEFAULT");
     setUpdateCountResult(undefined);
     setError(undefined);
   }, []);
 
-  const updateCount: ClickerHook["updateCount"] = useCallback(
+  const updateCount: ClickerCountHook["updateCount"] = useCallback(
     (id, gantryMode, bypassRestriction = false) => {
       const update = async (): Promise<void> => {
-        setClickerState("VALIDATING_ID");
+        setUpdateCountState("VALIDATING_ID");
         let cleanedId;
         try {
           cleanedId = validateAndCleanNric(id);
@@ -59,7 +61,7 @@ export const useClicker = (
           return;
         }
 
-        setClickerState("UPDATING_COUNT");
+        setUpdateCountState("UPDATING_COUNT");
         try {
           const result = await updateCountService({
             id: cleanedId,
@@ -74,7 +76,7 @@ export const useClicker = (
             id: cleanedId,
             gantryMode
           });
-          setClickerState("RESULT_RETURNED");
+          setUpdateCountState("RESULT_RETURNED");
         } catch (e) {
           setError(
             new Error(
@@ -90,7 +92,7 @@ export const useClicker = (
   );
 
   return {
-    clickerState,
+    updateCountState,
     updateCount,
     updateCountResult,
     error,

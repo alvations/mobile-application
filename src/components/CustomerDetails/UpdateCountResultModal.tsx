@@ -11,7 +11,7 @@ import { Card } from "../Layout/Card";
 import { useCountdown } from "../../hooks/useCountdown";
 import { usePrevious } from "../../hooks/usePrevious";
 import { size, color, fontSize } from "../../common/styles";
-import { ClickerHook } from "../../hooks/useClicker/useClicker";
+import { ClickerCountHook } from "../../hooks/useClickerCount/useClickerCount";
 import { GantryMode } from "../../context/config";
 
 const styles = StyleSheet.create({
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
 });
 
 interface UpdateCountResultModal {
-  updateCountResult?: ClickerHook["updateCountResult"];
+  updateCountResult?: ClickerCountHook["updateCountResult"];
   isVisible: boolean;
   onExit: () => void;
 }
