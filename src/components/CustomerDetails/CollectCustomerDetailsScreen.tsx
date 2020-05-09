@@ -13,7 +13,8 @@ import {
   Alert,
   Vibration,
   Platform,
-  BackHandler
+  BackHandler,
+  Keyboard
 } from "react-native";
 import { size, color } from "../../common/styles";
 import { Card } from "../Layout/Card";
@@ -100,6 +101,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
   const { sessionToken, username, clickerUuid } = useAuthenticationContext();
   const { config } = useConfigContext();
 
+  // Close camera when back action is triggered
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
@@ -116,11 +118,20 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
     };
   }, [shouldShowCamera]);
 
+  // Dismiss keyboard whenever camera is shown
   useEffect(() => {
-    if (isFocused) {
+    if (shouldShowCamera) {
+      Keyboard.dismiss();
+    }
+  }, [shouldShowCamera]);
+
+  // Check for updates whenever this screen is focused
+  // and when the camera is hidden
+  useEffect(() => {
+    if (isFocused && !shouldShowCamera) {
       checkUpdates();
     }
-  }, [isFocused, checkUpdates]);
+  }, [isFocused, checkUpdates, shouldShowCamera]);
 
   const {
     clickerState,
@@ -142,11 +153,13 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
     }
   }, [error, onCancel]);
 
+  // Vibrate when clicker is updating its count
   useEffect(() => {
     if (Platform.OS === "android" && clickerState === "UPDATING_COUNT") {
       Vibration.vibrate(50);
     }
   }, [clickerState]);
+
   useEffect(() => {
     if (updateCountResult && updateCountResult.count) {
       setCount(updateCountResult.count);
