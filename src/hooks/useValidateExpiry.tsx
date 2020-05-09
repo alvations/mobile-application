@@ -31,16 +31,15 @@ export const useValidateExpiry = (
           : `${secondsLeft} second${secondsLeft > 1 ? "s" : ""}`;
       setMessageContent({
         title: `Session ends in ${duration}`,
-        description:
-          "You will need to login with a new QR code when it expires",
+        description: "You will need to log in again when it expires",
         featherIconName: "clock",
         action: {
-          callback: () => logout(),
+          callback: () => logout(navigationDispatch),
           label: "Logout"
         }
       });
     },
-    [logout, setMessageContent]
+    [logout, navigationDispatch, setMessageContent]
   );
 
   const validate = useCallback(async (): Promise<void> => {

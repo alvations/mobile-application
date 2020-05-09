@@ -42,6 +42,7 @@ import { useAuthenticationContext } from "../../context/auth";
 import { useConfigContext } from "../../context/config";
 import { useClicker } from "../../hooks/useClicker/useClicker";
 import { LocationDetails } from "./LocationDetails";
+import { useValidateExpiry } from "../../hooks/useValidateExpiry";
 
 const styles = StyleSheet.create({
   content: {
@@ -83,6 +84,7 @@ const showAlert = (message: string, onDismiss: () => void): void =>
   });
 
 const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedProps> = ({
+  navigation,
   isFocused
 }) => {
   useEffect(() => {
@@ -132,6 +134,15 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
       checkUpdates();
     }
   }, [isFocused, checkUpdates, shouldShowCamera]);
+
+  // Check whether the session token is valid whenever
+  // this screen is focused and when camera is hidden
+  const validateTokenExpiry = useValidateExpiry(navigation.dispatch);
+  useEffect(() => {
+    if (isFocused && !shouldShowCamera) {
+      validateTokenExpiry();
+    }
+  }, [isFocused, validateTokenExpiry, shouldShowCamera]);
 
   const {
     clickerState,
