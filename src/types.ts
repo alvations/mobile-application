@@ -89,7 +89,11 @@ export type PostTransactionResult = t.TypeOf<typeof PostTransactionResult>;
 
 export const UpdateCountResult = t.intersection([
   t.type({
-    status: t.union([t.literal("success"), t.literal("fail")]),
+    status: t.union([
+      t.literal("success"),
+      t.literal("rejected"),
+      t.literal("fail")
+    ]),
     message: t.string
   }),
   t.partial({

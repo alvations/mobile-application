@@ -39,10 +39,14 @@ export const mockUpdateCount = async ({
   gantryMode,
   bypassRestriction = false
 }: UpdateCount): Promise<UpdateCountResult> => {
+  await new Promise(res => setTimeout(() => res("done"), 1500));
   const dayOfMonth = new Date().getDate();
-  if (isEvenOrOdd(Number(id.slice(-2)[0])) !== isEvenOrOdd(dayOfMonth)) {
+  if (
+    !bypassRestriction &&
+    isEvenOrOdd(Number(id.slice(-2)[0])) !== isEvenOrOdd(dayOfMonth)
+  ) {
     return {
-      status: "fail",
+      status: "rejected",
       message: "Visitor does not meet odd/even requirement"
     };
   }

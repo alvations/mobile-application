@@ -36,7 +36,7 @@ import { Banner } from "../Layout/Banner";
 import { ImportantMessageContentContext } from "../../context/importantMessage";
 import { useCheckUpdates } from "../../hooks/useCheckUpdates";
 import { Scanner } from "./Scanner";
-import { UpdateCountStatusModal } from "./UpdateCountStatusModal";
+import { UpdateCountStatusModal } from "./UpdateCountStatusModal/UpdateCountStatusModal";
 import { useAuthenticationContext } from "../../context/auth";
 import { useConfigContext } from "../../context/config";
 import { useValidateExpiry } from "../../hooks/useValidateExpiry";
@@ -160,6 +160,10 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
     }
   };
 
+  const forceUpdateCount = (id: string): void => {
+    updateCount(id, config.gantryMode, true);
+  };
+
   return (
     <>
       <ScrollView
@@ -207,8 +211,9 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
       )}
       <UpdateCountStatusModal
         updateCountResult={updateCountResult}
-        isVisible={updateCountState === "RESULT_RETURNED"}
+        updateCountState={updateCountState}
         onExit={onCancel}
+        forceUpdateCount={forceUpdateCount}
       />
     </>
   );
