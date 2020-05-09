@@ -182,9 +182,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
               <MetaDataCard />
             </View>
             <Card>
-              <AppText>
-                Scan customer&apos;s NRIC/FIN or manually enter it
-              </AppText>
+              <AppText>Scan NRIC/FIN or manually enter it</AppText>
               <InputNricSection
                 openCamera={() => setShouldShowCamera(true)}
                 nricInput={nricInput}

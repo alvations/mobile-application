@@ -10,8 +10,8 @@ import { useConfigContext } from "../../context/config";
 
 const styles = StyleSheet.create({
   scanButtonWrapper: {
-    marginTop: size(4),
-    marginBottom: size(6)
+    marginTop: size(3),
+    marginBottom: size(5)
   },
   horizontalRule: {
     borderBottomColor: color("grey", 30),
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     fontFamily: "brand-bold"
   },
   manualInputWrapper: {
-    marginTop: size(4)
+    marginTop: size(3)
   },
   inputAndButtonWrapper: {
     marginTop: size(1),
