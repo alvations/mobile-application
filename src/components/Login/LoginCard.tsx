@@ -34,6 +34,9 @@ export const LoginCard: FunctionComponent<NavigationProps> = ({
   const onSubmit = async (): Promise<void> => {
     setIsLoading(true);
     try {
+      if (username.length <= 0) {
+        throw new Error("Please specify your name");
+      }
       const response = await validateLogin(branchCode, username);
       setIsLoading(false);
       setAuthInfo({
