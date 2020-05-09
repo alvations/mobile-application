@@ -115,6 +115,7 @@ export const mockGetClickerDetails = async (
   _clickerUuid: string,
   _sessionToken: string
 ): Promise<ClickerDetails> => {
+  await new Promise(res => setTimeout(() => res("done"), 1500));
   return {
     count: 10,
     name: "Clicker name"
