@@ -96,7 +96,6 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
 
   const messageContent = useContext(ImportantMessageContentContext);
   const [shouldShowCamera, setShouldShowCamera] = useState(false);
-  const [count, setCount] = useState(0);
   const [nricInput, setNricInput] = useState("");
   const showHelpModal = useContext(HelpModalContext);
   const checkUpdates = useCheckUpdates();
@@ -146,12 +145,18 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
 
   const {
     clickerState,
+    countState,
+    nameState,
+    getInitialCountInfo,
     updateCount,
     updateCountResult,
     error,
     resetState
   } = useClicker(sessionToken, clickerUuid, username);
 
+  useEffect(() => {
+    getInitialCountInfo();
+  }, [getInitialCountInfo]);
   const onCancel = useCallback((): void => {
     setNricInput("");
     resetState();
@@ -170,12 +175,6 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
       Vibration.vibrate(50);
     }
   }, [clickerState]);
-
-  useEffect(() => {
-    if (updateCountResult && updateCountResult.count) {
-      setCount(updateCountResult.count);
-    }
-  }, [updateCountResult]);
 
   const isScanningEnabled = isFocused && clickerState === "DEFAULT" && !error;
   const onBarCodeScanned: BarCodeScannedCallback = event => {
@@ -205,7 +204,10 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
             <View style={styles.metaCardWrapper}>
               <Card>
                 <View style={styles.metaCardContent}>
-                  <LocationDetails location={username} count={count} />
+                  <LocationDetails
+                    location={`${nameState} (${username})`}
+                    count={countState}
+                  />
                   <View style={styles.horizontalRule} />
                   <View style={styles.modeWrapper}>
                     <GantryModeToggler />

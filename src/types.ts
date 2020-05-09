@@ -98,3 +98,9 @@ export const UpdateCountResult = t.intersection([
 ]);
 
 export type UpdateCountResult = t.TypeOf<typeof UpdateCountResult>;
+
+export const CountInfoResult = t.type({
+  count: t.number,
+  name: t.string
+});
+export type CountInfoResult = t.TypeOf<typeof CountInfoResult>;

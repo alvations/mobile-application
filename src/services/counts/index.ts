@@ -1,5 +1,5 @@
 import { IS_MOCK } from "../../config";
-import { UpdateCountResult } from "../../types";
+import { UpdateCountResult, CountInfoResult } from "../../types";
 import { GantryMode } from "../../context/config";
 import { fetchWithValidator, ValidationError } from "../helpers";
 
@@ -91,6 +91,35 @@ export const liveUpdateCount = async ({
       headers: headers,
       body: JSON.stringify(payload)
     });
+    return response;
+  } catch (e) {
+    if (e instanceof ValidationError) {
+      // Sentry.captureException(e);
+    }
+    throw new UpdateCountError(e.message);
+  }
+};
+
+export const retrieveCountInfo = async (
+  clickerUuid: string,
+  sessionToken: string
+): Promise<CountInfoResult> => {
+  try {
+    const headers = {
+      CROWD_GO_WHERE_TOKEN: process.env.CLIENT_API_KEY,
+      USER_SESSION_ID: sessionToken,
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    };
+    const fullEndpoint = `${endpoint}/entries/retrieve_entries_info?clickerUuid=${clickerUuid}`;
+    const response = await fetchWithValidator(
+      CountInfoResult,
+      encodeURI(fullEndpoint),
+      {
+        method: "GET",
+        headers: headers
+      }
+    );
     return response;
   } catch (e) {
     if (e instanceof ValidationError) {
