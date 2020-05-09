@@ -36,7 +36,7 @@ import { Banner } from "../Layout/Banner";
 import { ImportantMessageContentContext } from "../../context/importantMessage";
 import { useCheckUpdates } from "../../hooks/useCheckUpdates";
 import { Scanner } from "./Scanner";
-import { UpdateCountResultModal } from "./UpdateCountResultModal";
+import { UpdateCountStatusModal } from "./UpdateCountStatusModal";
 import { useAuthenticationContext } from "../../context/auth";
 import { useConfigContext } from "../../context/config";
 import { useValidateExpiry } from "../../hooks/useValidateExpiry";
@@ -205,7 +205,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
           cancelButtonText="Enter NRIC manually"
         />
       )}
-      <UpdateCountResultModal
+      <UpdateCountStatusModal
         updateCountResult={updateCountResult}
         isVisible={updateCountState === "RESULT_RETURNED"}
         onExit={onCancel}

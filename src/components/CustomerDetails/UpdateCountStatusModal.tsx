@@ -60,13 +60,13 @@ const styles = StyleSheet.create({
   }
 });
 
-interface UpdateCountResultModal {
+interface UpdateCountStatusModal {
   updateCountResult?: ClickerCountHook["updateCountResult"];
   isVisible: boolean;
   onExit: () => void;
 }
 
-export const UpdateCountResultModal: FunctionComponent<UpdateCountResultModal> = ({
+export const UpdateCountStatusModal: FunctionComponent<UpdateCountStatusModal> = ({
   updateCountResult,
   isVisible,
   onExit
