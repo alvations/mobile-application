@@ -36,6 +36,7 @@ export const LoginCard: FunctionComponent<NavigationProps> = ({
       setIsLoading(false);
       setAuthInfo({
         sessionToken: response.sessionToken,
+        clickerUuid: response.clickerUuid,
         expiry: response.ttl.getTime(),
         branchCode,
         username

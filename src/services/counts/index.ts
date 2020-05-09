@@ -14,10 +14,11 @@ export class UpdateCountError extends Error {
 
 interface UpdateCount {
   id: string;
-  branchCode: string;
+  clickerUuid: string;
   username: string;
   sessionToken: string;
   gantryMode: GantryMode;
+  bypassRestriction: boolean;
 }
 
 const isEvenOrOdd = (n: number): "even" | "odd" =>
@@ -25,10 +26,11 @@ const isEvenOrOdd = (n: number): "even" | "odd" =>
 
 export const mockUpdateCount = async ({
   id,
-  branchCode,
+  clickerUuid,
   username,
   sessionToken,
-  gantryMode
+  gantryMode,
+  bypassRestriction = false
 }: UpdateCount): Promise<UpdateCountResult> => {
   const dayOfMonth = new Date().getDate();
   if (isEvenOrOdd(Number(id.slice(-2)[0])) !== isEvenOrOdd(dayOfMonth)) {
@@ -55,33 +57,38 @@ export const mockUpdateCount = async ({
 
 export const liveUpdateCount = async ({
   id,
-  branchCode,
+  clickerUuid,
   username,
   sessionToken,
-  gantryMode
+  gantryMode,
+  bypassRestriction
 }: UpdateCount): Promise<UpdateCountResult> => {
   try {
     const payload = {
-      identifier: id,
-      code: branchCode,
-      name: username
+      id: id,
+      clickerUuid: clickerUuid,
+      name: username,
+      bypassRestriction: bypassRestriction
     };
-
-    let fullEndpoint = `${endpoint}/clickers/`;
+    const headers = {
+      CROWD_GO_WHERE_TOKEN: process.env.CLIENT_API_KEY,
+      USER_SESSION_ID: sessionToken,
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    };
+    let fullEndpoint = `${endpoint}/entries/`;
     switch (gantryMode) {
       case GantryMode.checkOut:
-        fullEndpoint += "down_count";
+        fullEndpoint += "update_exit";
         break;
       case GantryMode.checkIn:
-        fullEndpoint += "up_count";
+        fullEndpoint += "update_entry";
         break;
     }
 
     const response = await fetchWithValidator(UpdateCountResult, fullEndpoint, {
       method: "POST",
-      headers: {
-        Authorization: sessionToken
-      },
+      headers: headers,
       body: JSON.stringify(payload)
     });
     return response;

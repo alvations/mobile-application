@@ -25,7 +25,7 @@ export type ClickerHook = {
 
 export const useClicker = (
   sessionToken: string,
-  branchCode: string,
+  clickerUuid: string,
   username: string
 ): ClickerHook => {
   const [clickerState, setClickerState] = useState<ClickerState>("DEFAULT");
@@ -60,10 +60,11 @@ export const useClicker = (
         try {
           const result = await updateCountService({
             id: cleanedId,
-            branchCode,
+            clickerUuid,
             username,
             sessionToken,
-            gantryMode
+            gantryMode,
+            bypassRestriction: false
           });
           setUpdateCountResult({
             ...result,
@@ -83,7 +84,7 @@ export const useClicker = (
 
       update();
     },
-    [branchCode, sessionToken, username]
+    [clickerUuid, sessionToken, username]
   );
 
   return {

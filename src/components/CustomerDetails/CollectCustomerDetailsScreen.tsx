@@ -96,7 +96,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
   const [nricInput, setNricInput] = useState("");
   const showHelpModal = useContext(HelpModalContext);
   const checkUpdates = useCheckUpdates();
-  const { sessionToken, branchCode, username } = useAuthenticationContext();
+  const { sessionToken, username, clickerUuid } = useAuthenticationContext();
   const { config } = useConfigContext();
 
   useEffect(() => {
@@ -127,7 +127,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
     updateCountResult,
     error,
     resetState
-  } = useClicker(sessionToken, branchCode, username);
+  } = useClicker(sessionToken, clickerUuid, username);
 
   const onCancel = useCallback((): void => {
     setNricInput("");

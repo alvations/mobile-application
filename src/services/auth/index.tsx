@@ -75,6 +75,7 @@ export const mockValidateOTP = async (
 ): Promise<SessionCredentials> => {
   return {
     sessionToken: "some-valid-session-token",
+    clickerUuid: "some-clicker-uuid",
     ttl: new Date(2030, 0, 1)
   };
 };
@@ -86,13 +87,19 @@ export const liveValidateLogin = async (
   branchCode: string,
   username: string
 ): Promise<SessionCredentials> => {
+  const headers = {
+    CROWD_GO_WHERE_TOKEN: process.env.CLIENT_API_KEY,
+    "Content-Type": "application/json",
+    Accept: "application/json"
+  };
   const payload = { code: branchCode, name: username };
   try {
     const response = await fetchWithValidator(
       SessionCredentials,
-      `${endpoint}/logins/create_clicker_login`,
+      `${endpoint}/logins/clicker_login`,
       {
         method: "POST",
+        headers: headers,
         body: JSON.stringify(payload)
       }
     );
@@ -112,6 +119,7 @@ export const mockValidateLogin = async (
   await new Promise(res => setTimeout(() => res("done"), 500));
   return {
     sessionToken: "some-valid-session-token",
+    clickerUuid: "some-clicker-uuid",
     ttl: new Date(2030, 0, 1)
   };
 };
