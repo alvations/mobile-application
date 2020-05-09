@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 export const useCountdown = (
   stepMs = 1000
@@ -8,16 +8,17 @@ export const useCountdown = (
   resetCountdown: () => void;
 } => {
   const [msLeft, setMsLeft] = useState<number | undefined>(undefined);
+  const timeout = useRef(0);
 
   useEffect(() => {
     if (msLeft === undefined || msLeft <= 0) {
       return;
     }
-    const timeout = setTimeout(() => {
+    timeout.current = setTimeout(() => {
       setMsLeft(msLeft - stepMs);
     }, stepMs);
     return () => {
-      clearTimeout(timeout);
+      clearTimeout(timeout.current);
     };
   }, [msLeft, stepMs]);
 
@@ -26,6 +27,7 @@ export const useCountdown = (
   }, []);
 
   const resetCountdown = useCallback(() => {
+    clearTimeout(timeout.current);
     setMsLeft(undefined);
   }, []);
 
