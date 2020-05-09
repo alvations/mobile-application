@@ -1,5 +1,5 @@
-import React, { FunctionComponent, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import React, { FunctionComponent, useState, useRef } from "react";
+import { View, StyleSheet, TextInput } from "react-native";
 import { DarkButton } from "../Layout/Buttons/DarkButton";
 import { size } from "../../common/styles";
 import { Card } from "../Layout/Card";
@@ -28,6 +28,8 @@ export const LoginCard: FunctionComponent<NavigationProps> = ({
   const [branchCode, setBranchCode] = useState("");
   const [username, setUsername] = useState("");
   const { setAuthInfo } = useAuthenticationContext();
+
+  const secondInputRef = useRef<TextInput>(null);
 
   const onSubmit = async (): Promise<void> => {
     setIsLoading(true);
@@ -58,12 +60,14 @@ export const LoginCard: FunctionComponent<NavigationProps> = ({
             label="Branch code"
             value={branchCode}
             onChange={({ nativeEvent: { text } }) => setBranchCode(text)}
-            onSubmitEditing={onSubmit}
+            onSubmitEditing={() => secondInputRef.current?.focus()}
             keyboardType="numeric"
+            blurOnSubmit={false}
           />
         </View>
         <View style={styles.inputWrapper}>
           <InputWithLabel
+            ref={secondInputRef}
             label="Staff name"
             value={username}
             onChange={({ nativeEvent: { text } }) => setUsername(text)}
