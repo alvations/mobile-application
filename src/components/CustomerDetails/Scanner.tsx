@@ -39,17 +39,6 @@ export const Scanner: FunctionComponent<IdScanner> = ({
   cancelButtonText,
   isScanningEnabled = true
 }) => {
-  const generate = () => {
-    const ids = [
-      "S0000001I",
-      "S0000002G",
-      "S0000003E",
-      "S0000004C",
-      "S0000005A"
-    ];
-    onBarCodeScanned({ data: ids[Math.floor(Math.random() * ids.length)] });
-  };
-
   return (
     <View style={styles.wrapper}>
       <SafeAreaView style={styles.content}>
@@ -73,9 +62,7 @@ export const Scanner: FunctionComponent<IdScanner> = ({
             right: 0,
             alignItems: "center"
           }}
-        >
-          <DarkButton text="Mock scan" onPress={generate} />
-        </View>
+        ></View>
       </SafeAreaView>
     </View>
   );
