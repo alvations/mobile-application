@@ -3,7 +3,6 @@ import { UpdateCountResult } from "../../types";
 import { useState, useCallback } from "react";
 import { validateAndCleanNric } from "../../utils/validateNric";
 import { updateCount as updateCountService } from "../../services/counts";
-
 type UpdateCountState =
   | "DEFAULT"
   | "VALIDATING_ID"

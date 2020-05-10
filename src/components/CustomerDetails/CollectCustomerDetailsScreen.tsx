@@ -42,6 +42,7 @@ import { useConfigContext } from "../../context/config";
 import { useValidateExpiry } from "../../hooks/useValidateExpiry";
 import { MetaDataCard } from "./MetaDataCard";
 import { useClickerCount } from "../../hooks/useClickerCount/useClickerCount";
+import { useClickerDetails } from "../../hooks/useClickerDetails/useClickerDetails";
 
 const styles = StyleSheet.create({
   content: {
@@ -83,6 +84,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
   const checkUpdates = useCheckUpdates();
   const { sessionToken, username, clickerUuid } = useAuthenticationContext();
   const { config } = useConfigContext();
+  const { setCount } = useClickerDetails(sessionToken, clickerUuid);
 
   // Close camera when back action is triggered
   useEffect(() => {
@@ -151,6 +153,14 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
       Vibration.vibrate(50);
     }
   }, [updateCountState]);
+
+  useEffect(() => {
+    if (updateCountResult && updateCountResult.count) {
+      console.log("Results updating");
+      console.log(updateCountResult);
+      setCount(updateCountResult.count);
+    }
+  }, [setCount, updateCountResult]);
 
   const isScanningEnabled =
     isFocused && updateCountState === "DEFAULT" && !error;

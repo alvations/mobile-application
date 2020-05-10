@@ -39,9 +39,13 @@ export const LocationDetails: FunctionComponent = () => {
   );
 
   useEffect(() => {
-    getClickerDetails();
-  }, [getClickerDetails]);
-
+    if (clickerUuid && sessionToken) {
+      getClickerDetails();
+    }
+  }, [clickerUuid, getClickerDetails, sessionToken]);
+  useEffect(() => {
+    console.log("count updated");
+  }, [count]);
   return (
     <View style={styles.wrapper}>
       <View style={{ flex: 3 }}>

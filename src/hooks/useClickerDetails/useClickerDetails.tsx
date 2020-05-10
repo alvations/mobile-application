@@ -4,6 +4,7 @@ import { getClickerDetails as getClickerDetailsService } from "../../services/co
 export type ClickerDetailsHook = {
   getClickerDetails: () => void;
   isLoading: boolean;
+  setCount: (newCount: number) => void;
   count: number;
   name: string;
 };
@@ -38,6 +39,7 @@ export const useClickerDetails = (
   return {
     getClickerDetails,
     isLoading,
+    setCount,
     count,
     name
   };
