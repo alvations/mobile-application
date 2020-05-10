@@ -71,7 +71,7 @@ export class ErrorBoundary extends Component<{}, State> {
       Date.now(),
       "hh:mm a, do MMMM"
     )})`;
-    const supportLink = `mailto:supplyallyhelp@hive.gov.sg?subject=[SupplyAlly Error]&body=${error}`;
+    const supportLink = `https://safeentry.zendesk.com`;
 
     return this.state.hasError ? (
       <View style={styles.wrapper}>
@@ -79,18 +79,18 @@ export class ErrorBoundary extends Component<{}, State> {
           <AppText style={styles.emoji}>😓</AppText>
           <AppText style={styles.heading}>Paiseh...</AppText>
           <AppText style={styles.feedback}>
-            SupplyAlly has encountered an issue. We&apos;ve noted this down and
+            SafeEntry has encountered an issue. We&apos;ve noted this down and
             are looking into it!
           </AppText>
           {this.state.errorMessage && (
             <>
               <AppText style={styles.errorDescription}>
-                If this persists, drop us an email at{" "}
+                If this persists, submit a request on{" "}
                 <AppText
                   style={styles.emailLink}
                   onPress={() => Linking.openURL(supportLink)}
                 >
-                  supplyallyhelp@hive.gov.sg
+                  https://safeentry.zendesk.com
                 </AppText>
               </AppText>
               <AppText style={styles.errorDescription}>{error}</AppText>
