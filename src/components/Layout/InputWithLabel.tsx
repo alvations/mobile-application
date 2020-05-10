@@ -1,4 +1,4 @@
-import React, { FunctionComponent, forwardRef } from "react";
+import React, { forwardRef } from "react";
 import { TextInput, View, StyleSheet, TextInputProps } from "react-native";
 import { size, color, borderRadius, fontSize } from "../../common/styles";
 import { AppText } from "./AppText";

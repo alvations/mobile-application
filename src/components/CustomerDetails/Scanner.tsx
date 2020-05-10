@@ -4,7 +4,6 @@ import { color, size } from "../../common/styles";
 import { SafeAreaView } from "react-navigation";
 import { IdScanner } from "../IdScanner/IdScanner";
 import { GantryModeToggler } from "./GantryModeToggler";
-import { DarkButton } from "../Layout/Buttons/DarkButton";
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -54,15 +53,6 @@ export const Scanner: FunctionComponent<IdScanner> = ({
             cancelButtonText={cancelButtonText}
           />
         </View>
-        <View
-          style={{
-            position: "absolute",
-            bottom: 200,
-            left: 0,
-            right: 0,
-            alignItems: "center"
-          }}
-        ></View>
       </SafeAreaView>
     </View>
   );

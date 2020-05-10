@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect } from "react";
+import React, { FunctionComponent } from "react";
 import {
   StyleSheet,
   View,
@@ -9,7 +9,6 @@ import { Feather } from "@expo/vector-icons";
 import { AppText } from "../Layout/AppText";
 import { fontSize, size, color } from "../../common/styles";
 import { useAuthenticationContext } from "../../context/auth";
-import { useClickerDetails } from "../../hooks/useClickerDetails/useClickerDetails";
 
 const styles = StyleSheet.create({
   wrapper: {

@@ -2,6 +2,7 @@ import { IS_MOCK } from "../../config";
 import { UpdateCountResult, ClickerDetails } from "../../types";
 import { GantryMode } from "../../context/config";
 import { fetchWithValidator, ValidationError } from "../helpers";
+import * as Sentry from "sentry-expo";
 
 const endpoint = process.env.DEV_ENDPOINT;
 
@@ -105,7 +106,7 @@ export const liveUpdateCount = async ({
     return response;
   } catch (e) {
     if (e instanceof ValidationError) {
-      // Sentry.captureException(e);
+      Sentry.captureException(e);
     }
     throw new UpdateCountError(e.message);
   }
@@ -145,7 +146,7 @@ export const liveGetClickerDetails = async (
     return response;
   } catch (e) {
     if (e instanceof ValidationError) {
-      // Sentry.captureException(e);
+      Sentry.captureException(e);
     }
     throw new GetClickerDetailsError(e.message);
   }
