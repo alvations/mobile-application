@@ -6,6 +6,7 @@ export type ClickerDetailsHook = {
   isLoading: boolean;
   setCount: (newCount: number) => void;
   count: number;
+  error?: Error;
   name: string;
 };
 
@@ -16,7 +17,7 @@ export const useClickerDetails = (
   const [count, setCount] = useState(0);
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
+  const [error, setError] = useState<Error>();
   const getClickerDetails: ClickerDetailsHook["getClickerDetails"] = useCallback(() => {
     const get = async (): Promise<void> => {
       setIsLoading(true);
@@ -28,7 +29,10 @@ export const useClickerDetails = (
         setCount(result.count);
         setName(result.name);
       } catch (e) {
-        throw e;
+        setError(
+          new Error(`Couldn't get clicker info, please try again later`)
+        );
+        return;
       } finally {
         setIsLoading(false);
       }
@@ -41,6 +45,7 @@ export const useClickerDetails = (
     isLoading,
     setCount,
     count,
+    error,
     name
   };
 };

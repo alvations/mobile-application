@@ -31,39 +31,39 @@ const styles = StyleSheet.create({
   }
 });
 
-export const LocationDetails: FunctionComponent = () => {
-  const { sessionToken, username, clickerUuid } = useAuthenticationContext();
-  const { getClickerDetails, count, name, isLoading } = useClickerDetails(
-    sessionToken,
-    clickerUuid
-  );
+interface LocationDetails {
+  clickerName: string;
+  count: number;
+  isLoading: boolean;
+  refreshCallback: () => void;
+}
 
-  useEffect(() => {
-    if (clickerUuid && sessionToken) {
-      getClickerDetails();
-    }
-  }, [clickerUuid, getClickerDetails, sessionToken]);
-  useEffect(() => {
-    console.log("count updated");
-  }, [count]);
+export const LocationDetails: FunctionComponent<LocationDetails> = ({
+  clickerName,
+  count,
+  isLoading,
+  refreshCallback
+}) => {
+  const { username } = useAuthenticationContext();
+
   return (
     <View style={styles.wrapper}>
       <View style={{ flex: 3 }}>
         <AppText style={styles.label}>Location</AppText>
-        {name.length === 0 && isLoading ? (
+        {clickerName.length === 0 && isLoading ? (
           <View style={styles.loadingWrapper}>
             <ActivityIndicator />
           </View>
         ) : (
           <AppText style={styles.itemText}>
-            {name} ({username})
+            {clickerName} ({username})
           </AppText>
         )}
       </View>
       <View style={{ flex: 1, marginLeft: size(3) }}>
         <AppText style={styles.label}>Visitors</AppText>
         <TouchableOpacity
-          onPress={getClickerDetails}
+          onPress={refreshCallback}
           style={{
             alignItems: "center",
             flexDirection: "row"

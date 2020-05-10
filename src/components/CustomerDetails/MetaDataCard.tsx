@@ -16,11 +16,27 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1
   }
 });
-
-export const MetaDataCard: FunctionComponent = () => (
+// For now we pass down props, will refactor to use context instead to pass props
+interface MetaDataCard {
+  clickerName: string;
+  count: number;
+  isLoading: boolean;
+  refreshCallback: () => void;
+}
+export const MetaDataCard: FunctionComponent<MetaDataCard> = ({
+  clickerName,
+  count,
+  isLoading,
+  refreshCallback
+}) => (
   <Card>
     <View style={styles.content}>
-      <LocationDetails />
+      <LocationDetails
+        clickerName={clickerName}
+        count={count}
+        isLoading={isLoading}
+        refreshCallback={refreshCallback}
+      />
       <View style={styles.horizontalRule} />
       <GantryModeToggler />
     </View>

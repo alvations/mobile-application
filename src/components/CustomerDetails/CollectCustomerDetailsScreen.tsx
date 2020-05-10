@@ -84,8 +84,20 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
   const checkUpdates = useCheckUpdates();
   const { sessionToken, username, clickerUuid } = useAuthenticationContext();
   const { config } = useConfigContext();
-  const { setCount } = useClickerDetails(sessionToken, clickerUuid);
+  const {
+    getClickerDetails,
+    count,
+    name,
+    isLoading,
+    error: detailsError,
+    setCount
+  } = useClickerDetails(sessionToken, clickerUuid);
 
+  useEffect(() => {
+    if (clickerUuid && sessionToken) {
+      getClickerDetails();
+    }
+  }, [clickerUuid, getClickerDetails, sessionToken]);
   // Close camera when back action is triggered
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -131,7 +143,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
     updateCountState,
     updateCount,
     updateCountResult,
-    error,
+    error: countError,
     resetState
   } = useClickerCount(sessionToken, clickerUuid, username);
 
@@ -141,11 +153,13 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
   }, [resetState]);
 
   useEffect(() => {
-    if (error) {
-      setNricInput("");
-      showAlert(error.message, onCancel);
+    setNricInput("");
+    if (detailsError) {
+      showAlert(detailsError.message, onCancel);
+    } else if (countError) {
+      showAlert(countError.message, onCancel);
     }
-  }, [error, onCancel]);
+  }, [onCancel, detailsError, countError]);
 
   // Vibrate when clicker is updating its count
   useEffect(() => {
@@ -156,14 +170,14 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
 
   useEffect(() => {
     if (updateCountResult && updateCountResult.count) {
-      console.log("Results updating");
-      console.log(updateCountResult);
       setCount(updateCountResult.count);
     }
   }, [setCount, updateCountResult]);
 
   const isScanningEnabled =
-    isFocused && updateCountState === "DEFAULT" && !error;
+    isFocused &&
+    updateCountState === "DEFAULT" &&
+    !(detailsError || countError);
   const onBarCodeScanned: BarCodeScannedCallback = event => {
     if (isScanningEnabled && event.data) {
       updateCount(event.data, config.gantryMode);
@@ -192,8 +206,14 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
                 <Banner {...messageContent} />
               </View>
             )}
+
             <View style={styles.rowWrapper}>
-              <MetaDataCard />
+              <MetaDataCard
+                clickerName={name}
+                count={count}
+                isLoading={isLoading}
+                refreshCallback={getClickerDetails}
+              />
             </View>
             <Card>
               <AppText>Scan NRIC/FIN or manually enter it</AppText>
