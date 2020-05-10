@@ -1,10 +1,8 @@
-import { IS_MOCK } from "../../config";
+import { IS_MOCK, ENDPOINT } from "../../config";
 import * as t from "io-ts";
 import { SessionCredentials } from "../../types";
 import { fetchWithValidator, ValidationError } from "../helpers";
 import * as Sentry from "sentry-expo";
-
-const endpoint = process.env.DEV_ENDPOINT;
 
 export class LoginError extends Error {
   constructor(message: string) {
@@ -96,7 +94,7 @@ export const liveValidateLogin = async (
   try {
     const response = await fetchWithValidator(
       SessionCredentials,
-      `${endpoint}/logins/clicker_login`,
+      `${ENDPOINT}/logins/clicker_login`,
       {
         method: "POST",
         headers: headers,

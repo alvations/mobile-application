@@ -1,10 +1,8 @@
-import { IS_MOCK } from "../../config";
+import { IS_MOCK, ENDPOINT } from "../../config";
 import { UpdateCountResult, ClickerDetails } from "../../types";
 import { GantryMode } from "../../context/config";
 import { fetchWithValidator, ValidationError } from "../helpers";
 import * as Sentry from "sentry-expo";
-
-const endpoint = process.env.DEV_ENDPOINT;
 
 export class UpdateCountError extends Error {
   constructor(message: string) {
@@ -88,7 +86,7 @@ export const liveUpdateCount = async ({
       "Content-Type": "application/json",
       Accept: "application/json"
     };
-    let fullEndpoint = `${endpoint}/entries/`;
+    let fullEndpoint = `${ENDPOINT}/entries/`;
     switch (gantryMode) {
       case GantryMode.checkOut:
         fullEndpoint += "update_exit";
@@ -134,7 +132,7 @@ export const liveGetClickerDetails = async (
       "Content-Type": "application/json",
       Accept: "application/json"
     };
-    const fullEndpoint = `${endpoint}/entries/retrieve_entries_info?clickerUuid=${clickerUuid}`;
+    const fullEndpoint = `${ENDPOINT}/entries/retrieve_entries_info?clickerUuid=${clickerUuid}`;
     const response = await fetchWithValidator(
       ClickerDetails,
       encodeURI(fullEndpoint),
