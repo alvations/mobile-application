@@ -8,7 +8,7 @@
       "android",
       "web"
     ],
-    "version": "1.0.0",
+    "version": "0.9.0",
     "orientation": "portrait",
     "scheme": "safeentry",
     "icon": "./assets/icon.png",
@@ -26,6 +26,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "sg.gov.tech.safeentry",
+      "buildNumber": "1",
       "splash": {
         "image": "./assets/splashscreen.png",
         "tabletImage": "./assets/splashscreen-tablet.png",
