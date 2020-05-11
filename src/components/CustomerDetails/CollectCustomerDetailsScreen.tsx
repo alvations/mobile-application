@@ -190,13 +190,13 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
 
   return (
     <>
+      <TopBackground />
       <ScrollView
         contentContainerStyle={{ alignItems: "center" }}
         scrollIndicatorInsets={{ right: 1 }}
         keyboardShouldPersistTaps="handled"
       >
         <KeyboardAvoidingView behavior="padding">
-          <TopBackground />
           <View style={styles.content}>
             <View style={styles.headerBar}>
               <AppHeader />

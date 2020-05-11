@@ -64,13 +64,13 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
 
   return (
     <>
+      <TopBackground style={{ height: "50%" }} />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, alignItems: "center" }}
         scrollIndicatorInsets={{ right: 1 }}
         keyboardShouldPersistTaps="handled"
       >
         <KeyboardAvoidingView behavior="padding">
-          <TopBackground style={{ height: "50%", maxHeight: "auto" }} />
           <View style={styles.content}>
             <View style={styles.headerText}>
               <AppName />

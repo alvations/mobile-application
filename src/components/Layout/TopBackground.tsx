@@ -12,8 +12,7 @@ export const TopBackground: FunctionComponent<ViewProps> = ({ style }) => {
         {
           backgroundColor: primaryColor,
           width: "100%",
-          height: "25%",
-          maxHeight: 360,
+          height: 200,
           position: "absolute"
         },
         style
