@@ -6,11 +6,12 @@ import { InputWithLabel } from "../Layout/InputWithLabel";
 import { AppText } from "../Layout/AppText";
 import { SecondaryButton } from "../Layout/Buttons/SecondaryButton";
 import { size, color, fontSize } from "../../common/styles";
+import { useConfigContext } from "../../context/config";
 
 const styles = StyleSheet.create({
   scanButtonWrapper: {
-    marginTop: size(4),
-    marginBottom: size(6)
+    marginTop: size(3),
+    marginBottom: size(5)
   },
   horizontalRule: {
     borderBottomColor: color("grey", 30),
@@ -28,8 +29,11 @@ const styles = StyleSheet.create({
     fontSize: fontSize(-1),
     fontFamily: "brand-bold"
   },
+  manualInputWrapper: {
+    marginTop: size(3)
+  },
   inputAndButtonWrapper: {
-    marginTop: size(6),
+    marginTop: size(1),
     flexDirection: "row",
     alignItems: "flex-end"
   },
@@ -52,6 +56,7 @@ export const InputNricSection: FunctionComponent<InputNricSection> = ({
   setNricInput,
   submitNric
 }) => {
+  const { config } = useConfigContext();
   return (
     <>
       <View style={styles.scanButtonWrapper}>
@@ -70,16 +75,20 @@ export const InputNricSection: FunctionComponent<InputNricSection> = ({
           <AppText style={styles.orText}>OR</AppText>
         </View>
       </View>
-      <View style={styles.inputAndButtonWrapper}>
-        <View style={styles.inputWrapper}>
-          <InputWithLabel
-            label="Enter NRIC number"
-            value={nricInput}
-            onChange={({ nativeEvent: { text } }) => setNricInput(text)}
-            onSubmitEditing={submitNric}
-          />
+      <View style={styles.manualInputWrapper}>
+        <View style={styles.inputAndButtonWrapper}>
+          <View style={styles.inputWrapper}>
+            <InputWithLabel
+              label="Enter NRIC number"
+              value={nricInput}
+              onChange={({ nativeEvent: { text } }) => setNricInput(text)}
+              onSubmitEditing={submitNric}
+              blurOnSubmit={false}
+              enablesReturnKeyAutomatically={true}
+            />
+          </View>
+          <SecondaryButton text={config.gantryMode} onPress={submitNric} />
         </View>
-        <SecondaryButton text="Check" onPress={submitNric} />
       </View>
     </>
   );

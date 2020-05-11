@@ -55,7 +55,7 @@ export const Banner: FunctionComponent<Banner> = ({
         <Feather
           name={featherIconName}
           size={size(2.5)}
-          color={color("blue", 50)}
+          color={color("grey", 70)}
         />
       </View>
     )}

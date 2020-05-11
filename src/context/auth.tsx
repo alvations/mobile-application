@@ -9,21 +9,29 @@ import React, {
 import { AsyncStorage } from "react-native";
 
 export const SESSION_TOKEN_KEY = "SESSION_TOKEN";
+export const CLICKER_UUID_KEY = "CLICKER_UUID";
 export const EXPIRY_KEY = "EXPIRY_KEY";
-export const ENDPOINT_KEY = "ENDPOINT_KEY";
+export const USERNAME = "USERNAME";
 
 interface AuthenticationContext {
-  token: string;
+  sessionToken: string;
+  clickerUuid: string;
   expiry: string;
-  endpoint: string;
-  setAuthInfo: (token: string, expiry: number, endpoint: string) => void;
+  username: string;
+  setAuthInfo: (params: {
+    sessionToken: string;
+    clickerUuid: string;
+    expiry: number;
+    username: string;
+  }) => void;
   clearAuthInfo: () => void;
 }
 
 export const AuthenticationContext = createContext<AuthenticationContext>({
-  token: "",
-  endpoint: "",
+  sessionToken: "",
+  clickerUuid: "",
   expiry: "",
+  username: "",
   setAuthInfo: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   clearAuthInfo: () => {} // eslint-disable-line @typescript-eslint/no-empty-function
 });
@@ -34,48 +42,56 @@ export const useAuthenticationContext = (): AuthenticationContext =>
 export const AuthenticationContextProvider: FunctionComponent = ({
   children
 }) => {
-  const [token, setToken] = useState("");
+  const [sessionToken, setSessionToken] = useState("");
+  const [clickerUuid, setClickerUuid] = useState("");
   const [expiry, setExpiry] = useState("");
-  const [endpoint, setEndpoint] = useState("");
+  const [username, setUsername] = useState("");
 
-  const setAuthInfo = async (
-    tokenInput: string,
-    expiryInput: number,
-    endpointInput: string
-  ): Promise<void> => {
-    setToken(tokenInput);
-    const expiryString = expiryInput.toString();
-    setExpiry(expiryString);
-    setEndpoint(endpointInput);
+  const setAuthInfo: AuthenticationContext["setAuthInfo"] = async ({
+    sessionToken,
+    clickerUuid,
+    expiry,
+    username
+  }): Promise<void> => {
+    setSessionToken(sessionToken);
+    setClickerUuid(clickerUuid);
+    setExpiry(expiry.toString());
+    setUsername(username);
     await AsyncStorage.multiSet([
-      [SESSION_TOKEN_KEY, tokenInput],
-      [EXPIRY_KEY, expiryString],
-      [ENDPOINT_KEY, endpointInput]
+      [SESSION_TOKEN_KEY, sessionToken],
+      [CLICKER_UUID_KEY, clickerUuid],
+      [EXPIRY_KEY, expiry.toString()],
+      [USERNAME, username]
     ]);
   };
 
   const clearAuthInfo = useCallback(async (): Promise<void> => {
-    setToken("");
+    setSessionToken("");
     setExpiry("");
-    setEndpoint("");
+    setUsername("");
     await AsyncStorage.multiRemove([
+      USERNAME,
       SESSION_TOKEN_KEY,
-      EXPIRY_KEY,
-      ENDPOINT_KEY
+      CLICKER_UUID_KEY,
+      EXPIRY_KEY
     ]);
   }, []);
 
   const loadAuthFromStore = async (): Promise<void> => {
     const values = await AsyncStorage.multiGet([
       SESSION_TOKEN_KEY,
+      CLICKER_UUID_KEY,
       EXPIRY_KEY,
-      ENDPOINT_KEY
+      USERNAME
     ]);
-    const [sessionToken, expiry, endpoint] = values.map(value => value[1]);
-    if (sessionToken && endpoint && expiry) {
-      setToken(sessionToken);
+    const [sessionToken, clickerUuid, expiry, username] = values.map(
+      value => value[1]
+    );
+    if (sessionToken && expiry && username) {
+      setSessionToken(sessionToken);
+      setClickerUuid(clickerUuid);
       setExpiry(expiry);
-      setEndpoint(endpoint);
+      setUsername(username);
     }
   };
 
@@ -86,9 +102,10 @@ export const AuthenticationContextProvider: FunctionComponent = ({
   return (
     <AuthenticationContext.Provider
       value={{
-        token,
+        sessionToken,
+        clickerUuid,
         expiry,
-        endpoint,
+        username,
         setAuthInfo,
         clearAuthInfo
       }}

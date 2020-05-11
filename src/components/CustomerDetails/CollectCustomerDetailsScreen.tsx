@@ -2,7 +2,8 @@ import React, {
   FunctionComponent,
   useState,
   useEffect,
-  useContext
+  useContext,
+  useCallback
 } from "react";
 import {
   View,
@@ -10,21 +11,21 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Alert,
-  Vibration
+  Vibration,
+  Platform,
+  BackHandler,
+  Keyboard
 } from "react-native";
 import { size } from "../../common/styles";
 import { Card } from "../Layout/Card";
 import { AppText } from "../Layout/AppText";
 import { TopBackground } from "../Layout/TopBackground";
 import { Credits } from "../Credits";
-import { useConfigContext } from "../../context/config";
 import {
   withNavigationFocus,
   NavigationFocusInjectedProps
 } from "react-navigation";
-import { IdScanner } from "../IdScanner/IdScanner";
 import { BarCodeScannedCallback } from "expo-barcode-scanner";
-import { validateAndCleanNric } from "../../utils/validateNric";
 import { InputNricSection } from "./InputNricSection";
 import { AppHeader } from "../Layout/AppHeader";
 import * as Sentry from "sentry-expo";
@@ -34,6 +35,14 @@ import { FeatureToggler } from "../FeatureToggler/FeatureToggler";
 import { Banner } from "../Layout/Banner";
 import { ImportantMessageContentContext } from "../../context/importantMessage";
 import { useCheckUpdates } from "../../hooks/useCheckUpdates";
+import { Scanner } from "./Scanner";
+import { UpdateCountStatusModal } from "./UpdateCountStatusModal/UpdateCountStatusModal";
+import { useAuthenticationContext } from "../../context/auth";
+import { useConfigContext } from "../../context/config";
+import { useValidateExpiry } from "../../hooks/useValidateExpiry";
+import { MetaDataCard } from "./MetaDataCard";
+import { useClickerCount } from "../../hooks/useClickerCount/useClickerCount";
+import { useClickerDetails } from "../../hooks/useClickerDetails/useClickerDetails";
 
 const styles = StyleSheet.create({
   content: {
@@ -44,13 +53,18 @@ const styles = StyleSheet.create({
     width: 512,
     maxWidth: "100%"
   },
-  headerText: {
+  headerBar: {
     marginBottom: size(4)
   },
-  bannerWrapper: {
+  rowWrapper: {
     marginBottom: size(1.5)
   }
 });
+
+const showAlert = (message: string, onDismiss: () => void): void =>
+  Alert.alert("Error", message, [{ text: "Dimiss", onPress: onDismiss }], {
+    onDismiss // for android outside alert clicks
+  });
 
 const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedProps> = ({
   navigation,
@@ -65,53 +79,113 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
 
   const messageContent = useContext(ImportantMessageContentContext);
   const [shouldShowCamera, setShouldShowCamera] = useState(false);
-  const [isScanningEnabled, setIsScanningEnabled] = useState(true);
   const [nricInput, setNricInput] = useState("");
-  const { config } = useConfigContext();
   const showHelpModal = useContext(HelpModalContext);
   const checkUpdates = useCheckUpdates();
+  const { sessionToken, username, clickerUuid } = useAuthenticationContext();
+  const { config } = useConfigContext();
+  const {
+    getClickerDetails,
+    count,
+    name,
+    isLoading,
+    error: detailsError,
+    setCount
+  } = useClickerDetails(sessionToken, clickerUuid);
 
   useEffect(() => {
-    if (isFocused) {
-      setIsScanningEnabled(true);
+    if (clickerUuid && sessionToken) {
+      getClickerDetails();
     }
-  }, [isFocused]);
-
+  }, [clickerUuid, getClickerDetails, sessionToken]);
+  // Close camera when back action is triggered
   useEffect(() => {
-    if (isFocused) {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        if (shouldShowCamera) {
+          setShouldShowCamera(false);
+          return true;
+        }
+        return false;
+      }
+    );
+    return () => {
+      backHandler.remove();
+    };
+  }, [shouldShowCamera]);
+
+  // Dismiss keyboard whenever camera is shown
+  useEffect(() => {
+    if (shouldShowCamera) {
+      Keyboard.dismiss();
+    }
+  }, [shouldShowCamera]);
+
+  // Check for updates whenever this screen is focused
+  // and when the camera is hidden
+  useEffect(() => {
+    if (isFocused && !shouldShowCamera) {
       checkUpdates();
     }
-  }, [isFocused, checkUpdates]);
+  }, [isFocused, checkUpdates, shouldShowCamera]);
 
-  const onCheck = async (input: string): Promise<void> => {
-    try {
-      setIsScanningEnabled(false);
-      const nric = validateAndCleanNric(input);
+  // Check whether the session token is valid whenever
+  // this screen is focused and when camera is hidden
+  const validateTokenExpiry = useValidateExpiry(navigation.dispatch);
+  useEffect(() => {
+    if (isFocused && !shouldShowCamera) {
+      validateTokenExpiry();
+    }
+  }, [isFocused, validateTokenExpiry, shouldShowCamera]);
+
+  const {
+    updateCountState,
+    updateCount,
+    updateCountResult,
+    error: countError,
+    resetState
+  } = useClickerCount(sessionToken, clickerUuid, username);
+
+  const onCancel = useCallback((): void => {
+    setNricInput("");
+    resetState();
+  }, [resetState]);
+
+  useEffect(() => {
+    setNricInput("");
+    if (detailsError) {
+      showAlert(detailsError.message, onCancel);
+    } else if (countError) {
+      showAlert(countError.message, onCancel);
+    }
+  }, [onCancel, detailsError, countError]);
+
+  // Vibrate when clicker is updating its count
+  useEffect(() => {
+    if (Platform.OS === "android" && updateCountState === "UPDATING_COUNT") {
       Vibration.vibrate(50);
-      navigation.navigate("CustomerQuotaScreen", { nric });
-      setNricInput("");
-    } catch (e) {
-      setIsScanningEnabled(false);
-      Alert.alert(
-        "Error",
-        e.message || e,
-        [
-          {
-            text: "Dimiss",
-            onPress: () => setIsScanningEnabled(true)
-          }
-        ],
-        {
-          onDismiss: () => setIsScanningEnabled(true) // for android outside alert clicks
-        }
-      );
+    }
+  }, [updateCountState]);
+
+  useEffect(() => {
+    if (updateCountResult && updateCountResult.count) {
+      setCount(updateCountResult.count);
+    }
+  }, [setCount, updateCountResult]);
+
+  const isScanningEnabled =
+    isFocused &&
+    updateCountState === "DEFAULT" &&
+    !(detailsError || countError);
+  const onBarCodeScanned: BarCodeScannedCallback = event => {
+    if (isScanningEnabled && event.data) {
+      updateCount(event.data, config.gantryMode);
     }
   };
 
-  const onBarCodeScanned: BarCodeScannedCallback = event => {
-    if (isFocused && isScanningEnabled && event.data) {
-      onCheck(event.data);
-    }
+  const forceUpdateCount = (id: string): void => {
+    updateCount(id, config.gantryMode, true);
   };
 
   return (
@@ -121,43 +195,56 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
         scrollIndicatorInsets={{ right: 1 }}
         keyboardShouldPersistTaps="handled"
       >
-        <TopBackground mode={config.appMode} />
-        <KeyboardAvoidingView behavior="position">
+        <KeyboardAvoidingView behavior="padding">
+          <TopBackground />
           <View style={styles.content}>
-            <View style={styles.headerText}>
-              <AppHeader mode={config.appMode} />
+            <View style={styles.headerBar}>
+              <AppHeader />
             </View>
             {messageContent && (
-              <View style={styles.bannerWrapper}>
+              <View style={styles.rowWrapper}>
                 <Banner {...messageContent} />
               </View>
             )}
+
+            <View style={styles.rowWrapper}>
+              <MetaDataCard
+                clickerName={name}
+                count={count}
+                isLoading={isLoading}
+                refreshCallback={getClickerDetails}
+              />
+            </View>
             <Card>
-              <AppText>
-                Check the number of items your customer can purchase
-              </AppText>
+              <AppText>Scan NRIC/FIN or manually enter it</AppText>
               <InputNricSection
                 openCamera={() => setShouldShowCamera(true)}
                 nricInput={nricInput}
                 setNricInput={setNricInput}
-                submitNric={() => onCheck(nricInput)}
+                submitNric={() => updateCount(nricInput, config.gantryMode)}
               />
             </Card>
             <FeatureToggler feature="HELP_MODAL">
               <HelpButton onPress={showHelpModal} />
             </FeatureToggler>
+            <Credits style={{ marginTop: size(5) }} />
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
-      <Credits style={{ bottom: size(3) }} />
       {shouldShowCamera && (
-        <IdScanner
+        <Scanner
           isScanningEnabled={isScanningEnabled}
           onBarCodeScanned={onBarCodeScanned}
           onCancel={() => setShouldShowCamera(false)}
           cancelButtonText="Enter NRIC manually"
         />
       )}
+      <UpdateCountStatusModal
+        updateCountResult={updateCountResult}
+        updateCountState={updateCountState}
+        onExit={onCancel}
+        forceUpdateCount={forceUpdateCount}
+      />
     </>
   );
 };

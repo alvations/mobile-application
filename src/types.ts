@@ -12,6 +12,7 @@ export interface NavigationProps {
 
 export const SessionCredentials = t.type({
   sessionToken: t.string,
+  clickerUuid: t.string,
   ttl: DateFromNumber
 });
 
@@ -85,3 +86,25 @@ export const PostTransactionResult = t.type({
 
 export type Transaction = t.TypeOf<typeof Transaction>;
 export type PostTransactionResult = t.TypeOf<typeof PostTransactionResult>;
+
+export const UpdateCountResult = t.intersection([
+  t.type({
+    status: t.union([
+      t.literal("success"),
+      t.literal("rejected"),
+      t.literal("fail")
+    ]),
+    message: t.string
+  }),
+  t.partial({
+    count: t.number
+  })
+]);
+
+export type UpdateCountResult = t.TypeOf<typeof UpdateCountResult>;
+
+export const ClickerDetails = t.type({
+  count: t.number,
+  name: t.string
+});
+export type ClickerDetails = t.TypeOf<typeof ClickerDetails>;

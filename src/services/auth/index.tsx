@@ -1,4 +1,4 @@
-import { IS_MOCK } from "../../config";
+import { IS_MOCK, ENDPOINT } from "../../config";
 import * as t from "io-ts";
 import { SessionCredentials } from "../../types";
 import { fetchWithValidator, ValidationError } from "../helpers";
@@ -73,9 +73,53 @@ export const mockValidateOTP = async (
 ): Promise<SessionCredentials> => {
   return {
     sessionToken: "some-valid-session-token",
+    clickerUuid: "some-clicker-uuid",
     ttl: new Date(2030, 0, 1)
   };
 };
 
 export const requestOTP = IS_MOCK ? mockRequestOTP : liveRequestOTP;
 export const validateOTP = IS_MOCK ? mockValidateOTP : liveValidateOTP;
+
+export const liveValidateLogin = async (
+  branchCode: string,
+  username: string
+): Promise<SessionCredentials> => {
+  const headers = {
+    CROWD_GO_WHERE_TOKEN: process.env.CLIENT_API_KEY,
+    "Content-Type": "application/json",
+    Accept: "application/json"
+  };
+  const payload = { code: branchCode, name: username };
+  try {
+    const response = await fetchWithValidator(
+      SessionCredentials,
+      `${ENDPOINT}/logins/clicker_login`,
+      {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(payload)
+      }
+    );
+    return response;
+  } catch (e) {
+    if (e instanceof ValidationError) {
+      Sentry.captureException(e);
+    }
+    throw new LoginError(e.message);
+  }
+};
+
+export const mockValidateLogin = async (
+  _branchCode: string,
+  _username: string
+): Promise<SessionCredentials> => {
+  await new Promise(res => setTimeout(() => res("done"), 500));
+  return {
+    sessionToken: "some-valid-session-token",
+    clickerUuid: "some-clicker-uuid",
+    ttl: new Date(2030, 0, 1)
+  };
+};
+
+export const validateLogin = IS_MOCK ? mockValidateLogin : liveValidateLogin;

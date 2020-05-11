@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React, { forwardRef } from "react";
 import { TextInput, View, StyleSheet, TextInputProps } from "react-native";
 import { size, color, borderRadius, fontSize } from "../../common/styles";
 import { AppText } from "./AppText";
@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     borderColor: color("grey", 40),
     fontFamily: "brand-regular",
     fontSize: fontSize(0),
-    color: color("blue", 50)
+    color: color("grey", 70)
   }
 });
 
@@ -25,12 +25,12 @@ interface InputWithLabel extends TextInputProps {
   label: string;
 }
 
-export const InputWithLabel: FunctionComponent<InputWithLabel> = ({
-  label,
-  ...props
-}) => (
-  <View>
-    <AppText style={styles.label}>{label}</AppText>
-    <TextInput style={styles.input} {...props} />
-  </View>
+// eslint-disable-next-line react/display-name
+export const InputWithLabel = forwardRef<TextInput, InputWithLabel>(
+  ({ label, ...props }, ref) => (
+    <View>
+      <AppText style={styles.label}>{label}</AppText>
+      <TextInput style={styles.input} {...props} ref={ref} />
+    </View>
+  )
 );

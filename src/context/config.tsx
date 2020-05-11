@@ -8,13 +8,13 @@ import React, {
 import { AsyncStorage } from "react-native";
 import { LoadingView } from "../components/Loading";
 
-export enum AppMode {
-  production = "production",
-  staging = "staging"
+export enum GantryMode {
+  checkIn = "Check in",
+  checkOut = "Check out"
 }
 
 interface Config {
-  appMode: AppMode;
+  gantryMode: GantryMode;
 }
 
 interface ConfigContext {
@@ -23,7 +23,7 @@ interface ConfigContext {
 }
 
 const CONFIG_KEY = "CONFIG";
-const DEFAULT_CONFIG: Config = { appMode: AppMode.production };
+const DEFAULT_CONFIG: Config = { gantryMode: GantryMode.checkIn };
 
 const ConfigContext = createContext<ConfigContext>({
   config: DEFAULT_CONFIG,

@@ -1,17 +1,12 @@
 import React, { FunctionComponent, useCallback } from "react";
 import { color, size } from "../../common/styles";
 import { View, StyleSheet, Alert, TouchableOpacity } from "react-native";
-import { AppMode } from "../../context/config";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { withNavigation } from "react-navigation";
 import { NavigationProps } from "../../types";
 import { AppName } from "./AppName";
 import { AppText } from "./AppText";
 import { useLogout } from "../../hooks/useLogout";
-
-interface AppHeader extends NavigationProps {
-  mode?: AppMode;
-}
 
 const styles = StyleSheet.create({
   appHeaderWrapper: {
@@ -22,8 +17,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export const AppHeaderComponent: FunctionComponent<AppHeader> = ({
-  mode = AppMode.production,
+export const AppHeaderComponent: FunctionComponent<NavigationProps> = ({
   navigation
 }) => {
   const { logout } = useLogout();
@@ -52,20 +46,20 @@ export const AppHeaderComponent: FunctionComponent<AppHeader> = ({
 
   return (
     <View style={styles.appHeaderWrapper}>
-      <AppName mode={mode} />
+      <AppName />
       <TouchableOpacity onPress={onPressLogout}>
         <View
           style={{
             flexDirection: "row",
-            alignItems: "center"
+            alignItems: "flex-end"
           }}
         >
-          <AppText style={{ color: color("grey", 0), marginRight: size(1) }}>
+          <AppText style={{ color: color("grey", 0), marginRight: size(0.5) }}>
             Logout
           </AppText>
           <MaterialCommunityIcons
             name="logout"
-            size={size(3)}
+            size={size(2)}
             color={color("grey", 0)}
           />
         </View>

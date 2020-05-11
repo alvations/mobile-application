@@ -13,7 +13,7 @@ import { size, color, borderRadius, fontSize } from "../../common/styles";
 import { AppText } from "../Layout/AppText";
 import { SafeAreaView } from "react-navigation";
 
-const BASE_URL = "https://supplyallyhelp.zendesk.com/hc/en-us";
+const BASE_URL = "https://safeentry.zendesk.com/hc/en-us";
 const FEEDBACK_URL = BASE_URL + "/requests/new";
 
 const styles = StyleSheet.create({
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
 });
 
 const NavigationIcon: FunctionComponent<{ name: string }> = ({ name }) => (
-  <Feather name={name} size={size(3)} color={color("blue", 50)} />
+  <Feather name={name} size={size(3)} color={color("grey", 70)} />
 );
 
 const NavigationButton: FunctionComponent<{
