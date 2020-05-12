@@ -169,7 +169,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
   }, [updateCountState]);
 
   useEffect(() => {
-    if (updateCountResult && updateCountResult.count) {
+    if (updateCountResult && updateCountResult.count != null) {
       setCount(updateCountResult.count);
     }
   }, [setCount, updateCountResult]);
