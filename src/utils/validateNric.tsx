@@ -50,8 +50,10 @@ export const validate = (nricInput: string): boolean => {
   return nricLetterFG[letterIndex] === nricLetter;
 };
 
-export const validateAndCleanNric = (inputNric: string): string => {
-  const isNricValid = validate(inputNric);
+export const validateAndCleanNric = async (
+  inputNric: string
+): Promise<string> => {
+  const isNricValid = await validate(inputNric);
   if (!isNricValid) throw new Error("Invalid NRIC number");
   const cleanedNric = inputNric.match(nricRegex)?.[0].toUpperCase();
   if (!cleanedNric) throw new Error("Invalid NRIC number");

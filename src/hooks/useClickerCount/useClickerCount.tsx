@@ -50,7 +50,7 @@ export const useClickerCount = (
         setUpdateCountState("VALIDATING_ID");
         let cleanedId;
         try {
-          cleanedId = validateAndCleanNric(id);
+          cleanedId = await validateAndCleanNric(id);
         } catch (e) {
           setError(e);
           return;
