@@ -46,8 +46,7 @@ export const Content = (): ReactElement => {
       <StatusBar />
       <View
         style={{
-          flex: 1,
-          paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+          flex: 1
         }}
       >
         <AppContainer ref={navigatorRef} uriPrefix={prefix} />
