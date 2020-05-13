@@ -71,7 +71,7 @@ export const LoginCard: FunctionComponent<NavigationProps> = ({
         <View style={styles.inputWrapper}>
           <InputWithLabel
             ref={secondInputRef}
-            label="Staff name"
+            label="Location name"
             value={username}
             onChange={({ nativeEvent: { text } }) => setUsername(text)}
             onSubmitEditing={onSubmit}
