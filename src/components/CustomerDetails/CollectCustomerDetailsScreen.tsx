@@ -221,7 +221,9 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
                 openCamera={() => setShouldShowCamera(true)}
                 nricInput={nricInput}
                 setNricInput={setNricInput}
-                submitNric={() => updateCount(nricInput, config.gantryMode)}
+                submitNric={(bypassRestriction?: boolean) =>
+                  updateCount(nricInput, config.gantryMode, bypassRestriction)
+                }
               />
             </Card>
             <FeatureToggler feature="HELP_MODAL">

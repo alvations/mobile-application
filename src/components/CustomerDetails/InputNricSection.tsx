@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { DarkButton } from "../Layout/Buttons/DarkButton";
@@ -7,7 +7,7 @@ import { AppText } from "../Layout/AppText";
 import { SecondaryButton } from "../Layout/Buttons/SecondaryButton";
 import { size, color, fontSize } from "../../common/styles";
 import { useConfigContext } from "../../context/config";
-
+import { ToggleSwitch } from "../Layout/ToggleSwitch";
 const styles = StyleSheet.create({
   scanButtonWrapper: {
     marginTop: size(3),
@@ -47,7 +47,7 @@ interface InputNricSection {
   openCamera: () => void;
   nricInput: string;
   setNricInput: (nric: string) => void;
-  submitNric: () => void;
+  submitNric: (bypassRestriction?: boolean) => void;
 }
 
 export const InputNricSection: FunctionComponent<InputNricSection> = ({
@@ -57,6 +57,7 @@ export const InputNricSection: FunctionComponent<InputNricSection> = ({
   submitNric
 }) => {
   const { config } = useConfigContext();
+  const [bypassRestriction, setBypassRestriction] = useState(false);
   return (
     <>
       <View style={styles.scanButtonWrapper}>
@@ -76,18 +77,31 @@ export const InputNricSection: FunctionComponent<InputNricSection> = ({
         </View>
       </View>
       <View style={styles.manualInputWrapper}>
+        <ToggleSwitch
+          state={!bypassRestriction}
+          onPressCallback={state => setBypassRestriction(!state)}
+          trueText={"NRIC/FIN"}
+          falseText={"Passport/Foreign ID"}
+        />
         <View style={styles.inputAndButtonWrapper}>
           <View style={styles.inputWrapper}>
             <InputWithLabel
-              label="Enter NRIC number"
+              label={
+                bypassRestriction
+                  ? "Enter Passport/Foreign ID"
+                  : "Enter NRIC number"
+              }
               value={nricInput}
               onChange={({ nativeEvent: { text } }) => setNricInput(text)}
-              onSubmitEditing={submitNric}
+              onSubmitEditing={() => submitNric(bypassRestriction)}
               blurOnSubmit={false}
               enablesReturnKeyAutomatically={true}
             />
           </View>
-          <SecondaryButton text={config.gantryMode} onPress={submitNric} />
+          <SecondaryButton
+            text={config.gantryMode}
+            onPress={() => submitNric(bypassRestriction)}
+          />
         </View>
       </View>
     </>

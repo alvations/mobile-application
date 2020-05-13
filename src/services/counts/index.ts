@@ -80,12 +80,15 @@ export const liveUpdateCount = async ({
       name: username,
       bypassRestriction: bypassRestriction
     };
-    const headers = {
-      CROWD_GO_WHERE_TOKEN: process.env.CLIENT_API_KEY,
-      USER_SESSION_ID: sessionToken,
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    };
+    const cgwToken: string = process.env.CLIENT_API_KEY
+      ? process.env.CLIENT_API_KEY
+      : "";
+    const headers: HeadersInit = new Headers();
+    headers.set("Content-Type", "application/json");
+    headers.set("USER_SESSION_ID", sessionToken);
+    headers.set("Accept", "application/json");
+    headers.set("CROWD_GO_WHERE_TOKEN", cgwToken);
+
     let fullEndpoint = `${ENDPOINT}/entries/`;
     switch (gantryMode) {
       case GantryMode.checkOut:
@@ -126,12 +129,14 @@ export const liveGetClickerDetails = async (
   sessionToken: string
 ): Promise<ClickerDetails> => {
   try {
-    const headers = {
-      CROWD_GO_WHERE_TOKEN: process.env.CLIENT_API_KEY,
-      USER_SESSION_ID: sessionToken,
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    };
+    const cgwToken: string = process.env.CLIENT_API_KEY
+      ? process.env.CLIENT_API_KEY
+      : "";
+    const headers: HeadersInit = new Headers();
+    headers.set("Content-Type", "application/json");
+    headers.set("USER_SESSION_ID", sessionToken);
+    headers.set("Accept", "application/json");
+    headers.set("CROWD_GO_WHERE_TOKEN", cgwToken);
     const fullEndpoint = `${ENDPOINT}/entries/retrieve_entries_info?clickerUuid=${clickerUuid}`;
     const response = await fetchWithValidator(
       ClickerDetails,

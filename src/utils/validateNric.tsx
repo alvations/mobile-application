@@ -54,8 +54,10 @@ export const validateAndCleanNric = async (
   inputNric: string
 ): Promise<string> => {
   const isNricValid = await validate(inputNric);
-  if (!isNricValid) throw new Error("Invalid NRIC number");
+  if (!isNricValid)
+    throw new Error("Error parsing NRIC number, please try again!");
   const cleanedNric = inputNric.match(nricRegex)?.[0].toUpperCase();
-  if (!cleanedNric) throw new Error("Invalid NRIC number");
+  if (!cleanedNric)
+    throw new Error("Error parsing NRIC number, please try again!");
   return cleanedNric;
 };

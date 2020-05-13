@@ -50,7 +50,11 @@ export const useClickerCount = (
         setUpdateCountState("VALIDATING_ID");
         let cleanedId;
         try {
-          cleanedId = await validateAndCleanNric(id);
+          if (!bypassRestriction) {
+            cleanedId = await validateAndCleanNric(id);
+          } else {
+            cleanedId = id.toUpperCase();
+          }
         } catch (e) {
           setError(e);
           return;
