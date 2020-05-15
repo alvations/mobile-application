@@ -4,11 +4,15 @@ import {
 } from "react-navigation-stack";
 import CollectCustomerDetailsScreen from "./CollectCustomerDetailsScreen";
 import CustomerQuotaScreen from "./CustomerQuotaScreen";
+import { NFCReaderScreen } from "../../components/NFCReader/NFCReaderScreen";
 
 const StackNavigator = createStackNavigator(
   {
     CollectCustomerDetailsScreen: {
       screen: CollectCustomerDetailsScreen
+    },
+    NFCReaderScreen: {
+      screen: NFCReaderScreen
     },
     CustomerQuotaScreen: {
       screen: CustomerQuotaScreen

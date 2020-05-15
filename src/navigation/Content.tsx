@@ -5,7 +5,7 @@ import {
   NavigationContainerComponent
 } from "react-navigation";
 import StackNavigator from "./StackNavigator";
-import { StatusBar, View, Platform } from "react-native";
+import { StatusBar, View } from "react-native";
 import LoginScreen from "./LoginScreen";
 import { useAppState } from "../hooks/useAppState";
 import { useCheckUpdates } from "../hooks/useCheckUpdates";
@@ -25,7 +25,8 @@ const AppContainer = createAppContainer(SwitchNavigator);
 export const Content = (): ReactElement => {
   const navigatorRef = useRef<NavigationContainerComponent>(null);
   const appState = useAppState();
-  const prefix = Linking.makeUrl("/");
+  // const prefix = Linking.makeUrl("/");
+  const prefix = "/";
 
   const checkUpdates = useCheckUpdates();
   useEffect(() => {

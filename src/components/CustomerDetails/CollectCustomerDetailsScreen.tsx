@@ -16,7 +16,7 @@ import {
   BackHandler,
   Keyboard
 } from "react-native";
-import { size } from "../../common/styles";
+import { size, color, fontSize, letterSpacing } from "../../common/styles";
 import { Card } from "../Layout/Card";
 import { AppText } from "../Layout/AppText";
 import { TopBackground } from "../Layout/TopBackground";
@@ -43,6 +43,8 @@ import { useValidateExpiry } from "../../hooks/useValidateExpiry";
 import { MetaDataCard } from "./MetaDataCard";
 import { useClickerCount } from "../../hooks/useClickerCount/useClickerCount";
 import { useClickerDetails } from "../../hooks/useClickerDetails/useClickerDetails";
+import { DarkButton } from "../Layout/Buttons/DarkButton";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const styles = StyleSheet.create({
   content: {
@@ -215,16 +217,62 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
                 refreshCallback={getClickerDetails}
               />
             </View>
+            <View style={styles.rowWrapper}>
+              <Card>
+                <AppText>Scan NRIC/FIN or manually enter it</AppText>
+                <InputNricSection
+                  openCamera={() => setShouldShowCamera(true)}
+                  nricInput={nricInput}
+                  setNricInput={setNricInput}
+                  submitNric={(bypassRestriction?: boolean) =>
+                    updateCount(nricInput, config.gantryMode, bypassRestriction)
+                  }
+                />
+              </Card>
+            </View>
             <Card>
-              <AppText>Scan NRIC/FIN or manually enter it</AppText>
-              <InputNricSection
-                openCamera={() => setShouldShowCamera(true)}
-                nricInput={nricInput}
-                setNricInput={setNricInput}
-                submitNric={(bypassRestriction?: boolean) =>
-                  updateCount(nricInput, config.gantryMode, bypassRestriction)
-                }
-              />
+              <View
+                style={{
+                  borderRadius: 999,
+                  backgroundColor: color("blue", 10),
+                  alignSelf: "flex-start",
+                  paddingHorizontal: 12,
+                  paddingVertical: 3
+                }}
+              >
+                <AppText
+                  style={{
+                    textTransform: "uppercase",
+                    letterSpacing: letterSpacing(2),
+                    color: color("blue", 60),
+                    fontSize: fontSize(-3),
+                    fontFamily: "brand-bold"
+                  }}
+                >
+                  Beta
+                </AppText>
+              </View>
+              <AppText style={{ marginTop: size(1) }}>
+                Scan EZLink/NETS FlashPay/CEPAS cards
+              </AppText>
+              <View
+                style={{
+                  marginTop: size(3)
+                }}
+              >
+                <DarkButton
+                  fullWidth={true}
+                  text="Scan using NFC"
+                  icon={
+                    <MaterialCommunityIcons
+                      name="cellphone-nfc"
+                      size={size(2)}
+                      color={color("grey", 0)}
+                    />
+                  }
+                  onPress={() => navigation.navigate("NFCReaderScreen")}
+                />
+              </View>
             </Card>
             <FeatureToggler feature="HELP_MODAL">
               <HelpButton onPress={showHelpModal} />
