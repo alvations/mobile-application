@@ -19,28 +19,34 @@ export class GetClickerDetailsError extends Error {
 }
 
 interface UpdateCount {
-  id: string;
+  id?: string;
+  canId?: string;
   clickerUuid: string;
   username: string;
   sessionToken: string;
   gantryMode: GantryMode;
-  bypassRestriction: boolean;
+  bypassRestriction?: boolean;
 }
 
 const isEvenOrOdd = (n: number): "even" | "odd" =>
   n % 2 === 0 ? "even" : "odd";
 
-export const mockUpdateCount = async ({
+const mockUpdateCount = async ({
   id,
+  canId,
   clickerUuid,
   username,
   sessionToken,
   gantryMode,
   bypassRestriction = false
 }: UpdateCount): Promise<UpdateCountResult> => {
+  if (!id && !canId) {
+    throw new UpdateCountError("Please specify either an ID or a CAN ID");
+  }
   await new Promise(res => setTimeout(() => res("done"), 1500));
   const dayOfMonth = new Date().getDate();
   if (
+    id &&
     !bypassRestriction &&
     isEvenOrOdd(Number(id.slice(-2)[0])) !== isEvenOrOdd(dayOfMonth)
   ) {
@@ -65,29 +71,36 @@ export const mockUpdateCount = async ({
   }
 };
 
-export const liveUpdateCount = async ({
+const liveUpdateCount = async ({
   id,
+  canId,
   clickerUuid,
   username,
   sessionToken,
   gantryMode,
   bypassRestriction = false
 }: UpdateCount): Promise<UpdateCountResult> => {
+  if ((!id && !canId) || (id && canId)) {
+    throw new UpdateCountError("Please specify either an ID or a CAN ID");
+  }
   try {
-    const payload = {
-      id: id,
+    const payload: any = {
       clickerUuid: clickerUuid,
       name: username,
       bypassRestriction: bypassRestriction
     };
-    const cgwToken: string = process.env.CLIENT_API_KEY
-      ? process.env.CLIENT_API_KEY
-      : "";
-    const headers: HeadersInit = new Headers();
+
+    if (id) {
+      payload.id = id;
+    } else {
+      payload.canId = canId;
+    }
+
+    const headers = new Headers();
     headers.set("Content-Type", "application/json");
     headers.set("USER_SESSION_ID", sessionToken);
     headers.set("Accept", "application/json");
-    headers.set("CROWD_GO_WHERE_TOKEN", cgwToken);
+    headers.set("CROWD_GO_WHERE_TOKEN", process.env.CLIENT_API_KEY ?? "");
 
     let fullEndpoint = `${ENDPOINT}/entries/`;
     switch (gantryMode) {
@@ -101,7 +114,7 @@ export const liveUpdateCount = async ({
 
     const response = await fetchWithValidator(UpdateCountResult, fullEndpoint, {
       method: "POST",
-      headers: headers,
+      headers,
       body: JSON.stringify(payload)
     });
     return response;
@@ -113,7 +126,7 @@ export const liveUpdateCount = async ({
   }
 };
 
-export const mockGetClickerDetails = async (
+const mockGetClickerDetails = async (
   _clickerUuid: string,
   _sessionToken: string
 ): Promise<ClickerDetails> => {
@@ -124,26 +137,24 @@ export const mockGetClickerDetails = async (
   };
 };
 
-export const liveGetClickerDetails = async (
+const liveGetClickerDetails = async (
   clickerUuid: string,
   sessionToken: string
 ): Promise<ClickerDetails> => {
   try {
-    const cgwToken: string = process.env.CLIENT_API_KEY
-      ? process.env.CLIENT_API_KEY
-      : "";
-    const headers: HeadersInit = new Headers();
+    const headers = new Headers();
     headers.set("Content-Type", "application/json");
     headers.set("USER_SESSION_ID", sessionToken);
     headers.set("Accept", "application/json");
-    headers.set("CROWD_GO_WHERE_TOKEN", cgwToken);
+    headers.set("CROWD_GO_WHERE_TOKEN", process.env.CLIENT_API_KEY ?? "");
+
     const fullEndpoint = `${ENDPOINT}/entries/retrieve_entries_info?clickerUuid=${clickerUuid}`;
     const response = await fetchWithValidator(
       ClickerDetails,
       encodeURI(fullEndpoint),
       {
         method: "GET",
-        headers: headers
+        headers
       }
     );
     return response;
