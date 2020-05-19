@@ -29,8 +29,8 @@ describe("cepasRegistration", () => {
         json: () => Promise.resolve()
       });
 
-      await registerCanId(canId, id, sessionToken);
-      const payload = { canId, id };
+      await registerCanId({ canId, id, sessionToken });
+      const payload = { canId, id, bypassRestriction: false };
       const [calledEndpoint, properties] = mockFetch.mock.calls[0];
       expect(calledEndpoint).toStrictEqual(`${ENDPOINT}/cepas-registration`);
       expect(properties).toHaveProperty("method", "POST");
@@ -47,6 +47,46 @@ describe("cepasRegistration", () => {
       );
     });
 
+    it("should return success result when bypass restriction is set and ID is valid", async () => {
+      expect.assertions(7);
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve()
+      });
+
+      await registerCanId({ canId, id, sessionToken, bypassRestriction: true });
+      const payload = { canId, id, bypassRestriction: true };
+      const [calledEndpoint, properties] = mockFetch.mock.calls[0];
+      expect(calledEndpoint).toStrictEqual(`${ENDPOINT}/cepas-registration`);
+      expect(properties).toHaveProperty("method", "POST");
+      expect(properties).toHaveProperty("body", JSON.stringify(payload));
+      expect(properties).toHaveProperty("headers");
+      expect(properties.headers).toHaveProperty("Accept", "application/json");
+      expect(properties.headers).toHaveProperty(
+        "Content-Type",
+        "application/json"
+      );
+      expect(properties.headers).toHaveProperty(
+        "USER_SESSION_ID",
+        sessionToken
+      );
+    });
+
+    it("should throw error if id validation failed", async () => {
+      expect.assertions(1);
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        json: () =>
+          Promise.resolve({
+            message: "ID could not be validated"
+          })
+      });
+
+      await expect(registerCanId({ canId, id, sessionToken })).rejects.toThrow(
+        "ID could not be validated"
+      );
+    });
+
     it("should throw error if can id could not be registered", async () => {
       expect.assertions(1);
       mockFetch.mockResolvedValueOnce({
@@ -57,15 +97,15 @@ describe("cepasRegistration", () => {
           })
       });
 
-      await expect(registerCanId(canId, id, sessionToken)).rejects.toThrow(
-        CepasRegistrationError
+      await expect(registerCanId({ canId, id, sessionToken })).rejects.toThrow(
+        "Cannot register another ID to this card"
       );
     });
 
     it("should throw error if there were issues fetching", async () => {
       expect.assertions(1);
       mockFetch.mockRejectedValueOnce(new Error("Network error"));
-      await expect(registerCanId(canId, id, sessionToken)).rejects.toThrow(
+      await expect(registerCanId({ canId, id, sessionToken })).rejects.toThrow(
         "Network error"
       );
     });

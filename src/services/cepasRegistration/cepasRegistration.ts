@@ -10,24 +10,34 @@ export class CepasRegistrationError extends Error {
   }
 }
 
-export const mockRegisterCanId = async (
-  canId: string,
-  id: string,
-  sessionToken: string
-): Promise<unknown> => {
+type RegisterCanId = {
+  canId: string;
+  id: string;
+  sessionToken: string;
+  bypassRestriction?: boolean;
+};
+
+export const mockRegisterCanId = async ({
+  canId,
+  id,
+  sessionToken,
+  bypassRestriction = false
+}: RegisterCanId): Promise<unknown> => {
   await new Promise(res => setTimeout(() => res("done"), 1500));
   return Promise.resolve();
 };
 
-export const liveRegisterCanId = async (
-  canId: string,
-  id: string,
-  sessionToken: string
-): Promise<unknown> => {
+export const liveRegisterCanId = async ({
+  canId,
+  id,
+  sessionToken,
+  bypassRestriction = false
+}: RegisterCanId): Promise<unknown> => {
   try {
     const payload = {
       canId,
-      id
+      id,
+      bypassRestriction
     };
     const headers = {
       CROWD_GO_WHERE_TOKEN: process.env.CLIENT_API_KEY ?? "",
