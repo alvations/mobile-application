@@ -195,6 +195,25 @@ describe("clicker", () => {
       ).rejects.toThrow(UpdateCountError);
     });
 
+    it("should throw error if CAN ID is not registered", async () => {
+      expect.assertions(1);
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        json: () =>
+          Promise.resolve({
+            message: "CAN ID is not registered"
+          })
+      });
+      // TODO: Use a different error type so the caller can choose how to handle it
+      await expect(
+        updateCount({
+          ...updateCountParams,
+          canId: "1001000200030004",
+          gantryMode: GantryMode.checkIn
+        })
+      ).rejects.toThrow(UpdateCountError);
+    });
+
     it("should throw error if update count failed", async () => {
       expect.assertions(1);
       mockFetch.mockResolvedValueOnce({
@@ -231,36 +250,6 @@ describe("clicker", () => {
         })
       ).rejects.toThrow(UpdateCountError);
       expect(mockCaptureException).toHaveBeenCalledTimes(1);
-    });
-
-    it("Should throw error if no ID nor CAN ID is specified", async () => {
-      expect.assertions(1);
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockUpdateEntryCountSuccess)
-      });
-      await expect(
-        updateCount({
-          ...updateCountParams,
-          gantryMode: GantryMode.checkIn
-        })
-      ).rejects.toThrow("Please specify either an ID or a CAN ID");
-    });
-
-    it("Should throw error if both ID and CAN ID are specified", async () => {
-      expect.assertions(1);
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockUpdateEntryCountSuccess)
-      });
-      await expect(
-        updateCount({
-          ...updateCountParams,
-          id: "S0000001I",
-          canId: "1001000200030004",
-          gantryMode: GantryMode.checkIn
-        })
-      ).rejects.toThrow("Please specify either an ID or a CAN ID");
     });
   });
 });

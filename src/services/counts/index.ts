@@ -18,15 +18,24 @@ export class GetClickerDetailsError extends Error {
   }
 }
 
-interface UpdateCount {
-  id?: string;
-  canId?: string;
+type BaseUpdateCount = {
   clickerUuid: string;
   username: string;
   sessionToken: string;
   gantryMode: GantryMode;
   bypassRestriction?: boolean;
-}
+  id?: string;
+  canId?: string;
+};
+type UpdateCountWithId = BaseUpdateCount & {
+  id: string;
+  canId?: undefined;
+};
+type UpdateCountWithCanId = BaseUpdateCount & {
+  id?: undefined;
+  canId: string;
+};
+type UpdateCount = UpdateCountWithCanId | UpdateCountWithId;
 
 const isEvenOrOdd = (n: number): "even" | "odd" =>
   n % 2 === 0 ? "even" : "odd";
