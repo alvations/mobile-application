@@ -3,6 +3,8 @@ import { UpdateCountResult } from "../../types";
 import { useState, useCallback } from "react";
 import { validateAndCleanNric } from "../../utils/validateNric";
 import { updateCount as updateCountService } from "../../services/counts";
+import { validateAndCleanPassport } from "../../utils/validatePassport";
+
 type UpdateCountState =
   | "DEFAULT"
   | "VALIDATING_ID"
@@ -48,10 +50,16 @@ export const useClickerCount = (
     (id, gantryMode, bypassRestriction = false) => {
       const update = async (): Promise<void> => {
         setUpdateCountState("VALIDATING_ID");
+        let isPassportNum = false;
         let cleanedId;
         try {
           if (!bypassRestriction) {
-            cleanedId = await validateAndCleanNric(id);
+            if (id.startsWith("PP")) {
+              cleanedId = await validateAndCleanPassport(id);
+              isPassportNum = true;
+            } else {
+              cleanedId = await validateAndCleanNric(id);
+            }
           } else {
             cleanedId = id.toUpperCase();
           }
@@ -72,7 +80,7 @@ export const useClickerCount = (
             username,
             sessionToken,
             gantryMode,
-            bypassRestriction
+            bypassRestriction: isPassportNum || bypassRestriction
           });
           setUpdateCountResult({
             ...result,
