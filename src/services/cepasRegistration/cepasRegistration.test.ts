@@ -1,6 +1,5 @@
 import { registerCanId } from ".";
 import * as Sentry from "sentry-expo";
-import { CepasRegistrationError } from "./cepasRegistration";
 import { ENDPOINT } from "../../config";
 
 jest.mock("sentry-expo");
@@ -17,12 +16,11 @@ const sessionToken = "session-token";
 
 describe("cepasRegistration", () => {
   beforeEach(() => {
-    mockFetch.mockReset();
-    mockCaptureException.mockReset();
+    jest.resetAllMocks();
   });
 
   describe("registerCanId", () => {
-    it("should register the can id to id", async () => {
+    it("should register the CAN id to id", async () => {
       expect.assertions(7);
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -87,7 +85,7 @@ describe("cepasRegistration", () => {
       );
     });
 
-    it("should throw error if can id could not be registered", async () => {
+    it("should throw error if CAN id could not be registered", async () => {
       expect.assertions(1);
       mockFetch.mockResolvedValueOnce({
         ok: false,

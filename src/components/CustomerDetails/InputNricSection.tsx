@@ -11,7 +11,7 @@ import { ToggleSwitch } from "../Layout/ToggleSwitch";
 const styles = StyleSheet.create({
   scanButtonWrapper: {
     marginTop: size(3),
-    marginBottom: size(5)
+    marginBottom: size(4)
   },
   horizontalRule: {
     borderBottomColor: color("grey", 30),
@@ -38,23 +38,30 @@ const styles = StyleSheet.create({
     alignItems: "flex-end"
   },
   inputWrapper: {
-    flex: 1,
-    marginRight: size(1)
+    flex: 1
+  },
+  buttonWrapper: {
+    marginLeft: size(1)
+  },
+  customManualInputCTAButton: {
+    marginTop: size(1)
   }
 });
 
-interface InputNricSection {
+export interface InputNricSection {
   openCamera: () => void;
   nricInput: string;
   setNricInput: (nric: string) => void;
   submitNric: (bypassRestriction?: boolean) => void;
+  manualInputCTAText?: string;
 }
 
 export const InputNricSection: FunctionComponent<InputNricSection> = ({
   openCamera,
   nricInput,
   setNricInput,
-  submitNric
+  submitNric,
+  manualInputCTAText
 }) => {
   const { config } = useConfigContext();
   const [bypassRestriction, setBypassRestriction] = useState(false);
@@ -98,12 +105,25 @@ export const InputNricSection: FunctionComponent<InputNricSection> = ({
               enablesReturnKeyAutomatically={true}
             />
           </View>
-          <SecondaryButton
-            text={config.gantryMode}
-            onPress={() => submitNric(bypassRestriction)}
-          />
+          {!manualInputCTAText && (
+            <View style={styles.buttonWrapper}>
+              <SecondaryButton
+                text={manualInputCTAText || config.gantryMode}
+                onPress={() => submitNric(bypassRestriction)}
+              />
+            </View>
+          )}
         </View>
       </View>
+      {manualInputCTAText && (
+        <View style={styles.customManualInputCTAButton}>
+          <SecondaryButton
+            text={manualInputCTAText}
+            onPress={() => submitNric(bypassRestriction)}
+            fullWidth={true}
+          />
+        </View>
+      )}
     </>
   );
 };

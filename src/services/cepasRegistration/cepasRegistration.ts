@@ -17,7 +17,7 @@ type RegisterCanId = {
   bypassRestriction?: boolean;
 };
 
-export const mockRegisterCanId = async ({
+const mockRegisterCanId = async ({
   canId,
   id,
   sessionToken,
@@ -27,7 +27,7 @@ export const mockRegisterCanId = async ({
   return Promise.resolve();
 };
 
-export const liveRegisterCanId = async ({
+const liveRegisterCanId = async ({
   canId,
   id,
   sessionToken,

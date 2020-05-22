@@ -5,12 +5,10 @@ import { AppText } from "./AppText";
 
 const styles = StyleSheet.create({
   switchContainer: {
-    width: "100%",
-    flex: 1,
-    alignSelf: "center",
     flexDirection: "row",
     minHeight: size(4),
-    margin: size(1),
+    marginTop: size(2),
+    marginBottom: size(1),
     borderColor: color("red", 50),
     borderWidth: 1,
     borderRadius: borderRadius(2)
@@ -45,7 +43,7 @@ export const ToggleSwitch: FunctionComponent<ToggleSwitch> = ({
       <TouchableOpacity
         style={[
           styles.switchButton,
-          { backgroundColor: state ? color("red", 50) : color("grey", 0) }
+          { backgroundColor: state ? color("red", 50) : "transparent" }
         ]}
         onPress={() => onPressCallback(true)}
       >
@@ -61,7 +59,7 @@ export const ToggleSwitch: FunctionComponent<ToggleSwitch> = ({
       <TouchableOpacity
         style={[
           styles.switchButton,
-          { backgroundColor: state ? color("grey", 0) : color("red", 50) }
+          { backgroundColor: state ? "transparent" : color("red", 50) }
         ]}
         onPress={() => onPressCallback(false)}
       >

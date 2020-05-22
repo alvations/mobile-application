@@ -2,40 +2,47 @@ import React, {
   FunctionComponent,
   useEffect,
   useState,
-  useCallback,
-  useRef
+  useCallback
 } from "react";
-import {
-  color,
-  size,
-  fontSize,
-  borderRadius,
-  shadow
-} from "../../common/styles";
+import { size, borderRadius, color, fontSize } from "../../common/styles";
 import {
   StyleSheet,
   View,
   ScrollView,
   Alert,
-  ActivityIndicator
+  BackHandler,
+  Keyboard
 } from "react-native";
 import { SafeAreaView } from "react-navigation";
 import { NavigationProps } from "../../types";
-import { AppText } from "../Layout/AppText";
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import { Card } from "../Layout/Card";
-import { GantryModeToggler } from "../CustomerDetails/GantryModeToggler";
-import { InputWithLabel } from "../Layout/InputWithLabel";
-import { SecondaryButton } from "../Layout/Buttons/SecondaryButton";
-import { DarkButton } from "../Layout/Buttons/DarkButton";
 import {
   useCepasScanner,
   InvalidCardError,
-  DuplicateCardError
+  DuplicateCardError,
+  CardMovedError
 } from "../../hooks/useCepasScanner/useCepasScanner";
-import { useConfigContext } from "../../context/config";
 import { BackButton } from "./BackButton";
+import { ScanningStateIcon } from "./ScanningStateIcon";
+import { GantryModeCard } from "./GantryModeCard";
+import { InstructionsText } from "./InstructionsText";
+import { ErrorFeedback } from "./ErrorFeedback";
+import { useClickerCount } from "../../hooks/useClickerCount/useClickerCount";
+import { useAuthenticationContext } from "../../context/auth";
+import { useConfigContext } from "../../context/config";
+import { CanIdError, OddEvenError } from "../../services/counts";
+import { Scanner } from "../CustomerDetails/Scanner";
+import { BarCodeScannedCallback } from "expo-barcode-scanner";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useCepasRegistration } from "../../hooks/useCepasRegistration/useCepasRegistration";
+import { InvalidIdError } from "../../utils/validateNric";
+import { Card } from "../Layout/Card";
+import { AppText } from "../Layout/AppText";
 import { formatCanId } from "./utils";
+import { maskId } from "../../utils/maskId";
+import { NotRegisteredContent } from "./NotRegisteredContent";
+import { RegisteringContent } from "./RegisteringContent";
+import { UpdatingCountContent } from "./UpdatingCountContent";
+import { SecondaryButton } from "../Layout/Buttons/SecondaryButton";
 
 const showAlert = (message: string, onDismiss: () => void): void =>
   Alert.alert("Error", message, [{ text: "Dimiss", onPress: onDismiss }], {
@@ -59,6 +66,10 @@ const styles = StyleSheet.create({
     paddingBottom: size(10),
     alignItems: "center",
     flex: 1
+  },
+  cardWrapper: {
+    marginHorizontal: size(2),
+    alignSelf: "stretch"
   },
   header: {
     borderTopLeftRadius: borderRadius(3),
@@ -87,22 +98,16 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     paddingHorizontal: size(2),
     paddingVertical: size(2),
+    paddingBottom: size(3),
     borderBottomLeftRadius: borderRadius(4),
     borderBottomRightRadius: borderRadius(4)
-  },
-  inputAndButtonWrapper: {
-    marginTop: size(2),
-    flexDirection: "row",
-    alignItems: "flex-end"
-  },
-  inputWrapper: {
-    marginRight: size(1)
   }
 });
 
 export const NFCReaderScreen: FunctionComponent<NavigationProps> = ({
   navigation
 }) => {
+  const { sessionToken, username, clickerUuid } = useAuthenticationContext();
   const { config } = useConfigContext();
 
   const {
@@ -112,23 +117,167 @@ export const NFCReaderScreen: FunctionComponent<NavigationProps> = ({
     error: nfcError
   } = useCepasScanner();
 
-  const [errorMessage, setErrorMessage] = useState("");
+  const {
+    updateCountState,
+    updateCount,
+    updateCountResult,
+    error: countError,
+    resetState: resetCountState
+  } = useClickerCount(sessionToken, clickerUuid, username);
 
+  const {
+    registrationState,
+    registerCanId,
+    registrationResult,
+    error: registrationError,
+    resetState: resetRegistrationState
+  } = useCepasRegistration(sessionToken);
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [shouldShowCamera, setShouldShowCamera] = useState(false);
+  const [showRegistration, setShowRegistration] = useState(false);
+
+  const resetAllState = useCallback(() => {
+    resetCountState();
+    resetRegistrationState();
+    setShowRegistration(false);
+    setShouldShowCamera(false);
+    setErrorMessage("");
+    resume();
+  }, [resetCountState, resetRegistrationState, resume]);
+
+  // TODO: Extract this to a hook
+  // Close camera when back action is triggered
   useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        if (shouldShowCamera) {
+          setShouldShowCamera(false);
+          return true;
+        }
+        return false;
+      }
+    );
+    return () => {
+      backHandler.remove();
+    };
+  }, [shouldShowCamera]);
+
+  // Dismiss keyboard whenever camera is shown
+  useEffect(() => {
+    if (shouldShowCamera) {
+      Keyboard.dismiss();
+    }
+  }, [shouldShowCamera]);
+
+  // Handle NFC errors
+  useEffect(() => {
+    if (!nfcError) {
+      return;
+    }
+
     if (
+      nfcError instanceof CardMovedError ||
       nfcError instanceof InvalidCardError ||
       nfcError instanceof DuplicateCardError
     ) {
       setErrorMessage(nfcError.message);
       resume();
+    } else {
+      // Should not reach here
+      console.warn(nfcError);
     }
   }, [nfcError, resume]);
 
+  // Handle update count errors
+  useEffect(() => {
+    if (!countError || countError instanceof OddEvenError) {
+      // OddEvenErrors are not handled by showing an alert.
+      return;
+    }
+    if (countError instanceof CanIdError) {
+      // Indicates that the registration flow should take place
+      setShowRegistration(true);
+      resetCountState(); // Handles the error by resetting the update count state
+    } else {
+      showAlert(countError?.message ?? "Error updating counts", () =>
+        resetAllState()
+      );
+    }
+  }, [countError, resetCountState, resetAllState]);
+
+  // Handle CAN ID registration errors
+  useEffect(() => {
+    if (!registrationError || registrationError instanceof InvalidIdError) {
+      // InvalidIdErrors are handled by NotRegisteredContent
+      return;
+    }
+    showAlert(registrationError?.message ?? "Error registering card", () =>
+      resetAllState()
+    );
+  }, [registrationError, resetAllState, resetRegistrationState]);
+
+  // Called when there's a new detected card with a CAN ID
   useEffect(() => {
     if (detectedCanId.length > 0) {
       setErrorMessage("");
+      updateCount({ canId: detectedCanId, gantryMode: config.gantryMode });
     }
-  }, [detectedCanId.length]);
+  }, [config.gantryMode, detectedCanId, updateCount]);
+
+  // Transition to registering view when a valid ID was provided for registration
+  useEffect(() => {
+    if (registrationState === "REGISTERING_CAN_ID") {
+      setShouldShowCamera(false);
+      setShowRegistration(false);
+    }
+  }, [registrationState]);
+
+  // Attempt to update count once registration if CAN ID -> ID succeeds
+  useEffect(() => {
+    if (registrationState === "REGISTRATION_COMPLETE") {
+      updateCount({ canId: detectedCanId, gantryMode: config.gantryMode });
+    }
+  }, [config.gantryMode, detectedCanId, registrationState, updateCount]);
+
+  // Scanning is enabled when registration is not in progress and
+  // when there are no registration errors (e.g. invalid id error)
+  const isScanningEnabled =
+    registrationState === "DEFAULT" && !registrationError;
+
+  const onBarCodeScanned: BarCodeScannedCallback = event => {
+    if (isScanningEnabled && event.data) {
+      registerCanId({
+        canId: detectedCanId,
+        id: event.data
+      });
+    }
+  };
+
+  const forceUpdateCount = (canId: string): void => {
+    updateCount({
+      canId,
+      gantryMode: config.gantryMode,
+      bypassRestriction: true
+    });
+  };
+
+  const openCamera = useCallback(() => setShouldShowCamera(true), []);
+  const closeCamera = useCallback(() => setShouldShowCamera(false), []);
+
+  console.log({
+    states: {
+      scannerState,
+      registrationState,
+      updateCountState
+    },
+    errors: {
+      nfcError: nfcError || "none",
+      countError: countError || "none",
+      registrationError: registrationError || "none"
+    }
+  });
 
   return (
     <View style={styles.wrapper}>
@@ -136,154 +285,113 @@ export const NFCReaderScreen: FunctionComponent<NavigationProps> = ({
         <View style={styles.topBar}>
           <BackButton onPress={() => navigation.goBack()} />
         </View>
-        <ScrollView>
+        <ScrollView
+          scrollIndicatorInsets={{ right: 1 }}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.feedbackWrapper}>
-            <View
-              style={{
-                padding: size(2.5),
-                borderRadius: borderRadius(10),
-                borderWidth: 1,
-                borderColor: color("grey", 30)
-              }}
-            >
-              <MaterialCommunityIcons
-                name={
-                  scannerState === "PAUSED/CARD_DETECTED"
-                    ? "dots-horizontal"
-                    : scannerState === "PAUSED/CAN_ID_DETECTED"
-                    ? "check"
-                    : "credit-card-scan-outline"
-                }
-                size={size(5)}
-                color={color("grey", 70)}
-              />
-            </View>
-            {scannerState !== "PAUSED/CAN_ID_DETECTED" && (
-              <AppText
-                style={{
-                  fontFamily: "brand-bold",
-                  fontSize: fontSize(2),
-                  textAlign: "center",
-                  marginTop: size(1)
-                }}
-              >
-                Hold card to{"\n"} back of phone
-              </AppText>
-            )}
+            <ScanningStateIcon scannerState={scannerState} />
+            {scannerState !== "PAUSED/CAN_ID_DETECTED" && <InstructionsText />}
             {errorMessage.length > 0 && (
-              <AppText
-                style={{
-                  marginTop: size(2),
-                  maxWidth: 224,
-                  flexShrink: 1,
-                  color: color("red", 60),
-                  textAlign: "center"
-                }}
-              >
-                <Feather
-                  name="alert-triangle"
-                  size={fontSize(1)}
-                  color={color("red", 60)}
-                />
-                {` ${errorMessage}`}
-              </AppText>
+              <ErrorFeedback message={errorMessage} />
             )}
+            <View style={styles.cardWrapper}>
+              {scannerState === "PAUSED/CAN_ID_DETECTED" && (
+                <>
+                  <Card
+                    style={{
+                      paddingTop: 0,
+                      paddingBottom: 0,
+                      paddingHorizontal: 0,
+                      marginHorizontal: size(2)
+                    }}
+                  >
+                    <View style={[styles.header]}>
+                      <MaterialCommunityIcons
+                        name="credit-card-outline"
+                        size={size(3)}
+                        color={color("grey", 0)}
+                      />
 
-            <View style={{ marginTop: size(4), marginHorizontal: size(3) }}>
-              {detectedCanId.length > 0 && (
-                <Card
-                  style={{
-                    paddingTop: 0,
-                    paddingBottom: 0,
-                    paddingHorizontal: 0
-                  }}
-                >
-                  <View style={[styles.header]}>
-                    <MaterialCommunityIcons
-                      name="credit-card-outline"
-                      size={size(3)}
-                      color={color("grey", 0)}
-                    />
-
-                    <View style={styles.headerText}>
-                      <AppText style={styles.label}>CAN ID</AppText>
-                      <AppText style={styles.idText}>
-                        {formatCanId(detectedCanId)}
-                      </AppText>
+                      <View style={styles.headerText}>
+                        <AppText style={styles.label}>CAN ID</AppText>
+                        <AppText style={styles.idText}>
+                          {formatCanId(maskId(detectedCanId))}
+                        </AppText>
+                      </View>
                     </View>
-                  </View>
-                  <View style={styles.childrenWrapper}>
-                    <AppText style={{ fontSize: fontSize(-1) }}>
-                      Please enter the customer&apos;s NRIC/FIN/Passport number
-                      to link it with this card. This is a one-time step.
-                    </AppText>
-                    <View style={styles.inputAndButtonWrapper}>
-                      <View style={styles.inputWrapper}>
-                        <InputWithLabel
-                          label="NRIC/FIN/Passport number"
-                          value={""}
-                          onChange={({ nativeEvent: { text } }) =>
-                            // setNricInput(text)
-                            null
+                    <View style={styles.childrenWrapper}>
+                      {showRegistration && (
+                        <NotRegisteredContent
+                          detectedCanId={detectedCanId}
+                          openCamera={openCamera}
+                          registerCanId={registerCanId}
+                          registrationError={registrationError}
+                          resetRegistrationState={resetRegistrationState}
+                          showAlert={showAlert}
+                        />
+                      )}
+                      {!showRegistration &&
+                        (registrationState === "REGISTERING_CAN_ID" ||
+                          registrationState === "REGISTRATION_COMPLETE") && (
+                          <RegisteringContent
+                            registrationState={registrationState}
+                            registrationResult={registrationResult}
+                          />
+                        )}
+                      {!showRegistration && updateCountState !== "DEFAULT" && (
+                        <UpdatingCountContent
+                          updateCountState={updateCountState}
+                          gantryMode={config.gantryMode}
+                          rejectMessage={
+                            countError instanceof OddEvenError
+                              ? countError?.message
+                              : undefined
                           }
-                          onSubmitEditing={() => null}
-                          blurOnSubmit={false}
-                          enablesReturnKeyAutomatically={true}
+                          forceUpdateCount={() =>
+                            forceUpdateCount(detectedCanId)
+                          }
+                        />
+                      )}
+                    </View>
+                  </Card>
+                  {showRegistration ? (
+                    <View style={{ marginTop: size(5), alignSelf: "center" }}>
+                      <SecondaryButton
+                        text="Cancel registration"
+                        onPress={resetAllState}
+                      />
+                    </View>
+                  ) : (
+                    (updateCountState === "RESULT_RETURNED" || countError) && (
+                      <View style={{ marginTop: size(5), alignSelf: "center" }}>
+                        <SecondaryButton
+                          text="Next customer"
+                          onPress={resetAllState}
                         />
                       </View>
-                      <SecondaryButton
-                        text="Scan"
-                        onPress={() => "toggle"}
-                        icon={
-                          <Feather
-                            name="maximize"
-                            size={size(2)}
-                            color={color("red", 50)}
-                          />
-                        }
-                        fullWidth={true}
-                      />
-                    </View>
-                    <View style={{ marginTop: size(2) }}>
-                      <DarkButton
-                        text={`Register and ${config.gantryMode}`}
-                        fullWidth={true}
-                      />
-                    </View>
-                    <View style={{ marginTop: size(1) }}>
-                      <SecondaryButton
-                        text="Cancel"
-                        fullWidth={true}
-                        onPress={resume}
-                      />
-                    </View>
-                  </View>
-                </Card>
+                    )
+                  )}
+                </>
               )}
             </View>
           </View>
         </ScrollView>
-        {scannerState === "STARTED" && (
-          <View
-            style={{
-              paddingTop: size(3),
-              paddingBottom: size(4),
-              paddingHorizontal: size(3),
-              marginHorizontal: size(2),
-              backgroundColor: color("grey", 0),
-              borderWidth: 1,
-              borderBottomWidth: 0,
-              borderColor: color("grey", 20),
-              borderRadius: borderRadius(3),
-              borderBottomLeftRadius: 0,
-              borderBottomRightRadius: 0,
-              ...shadow(1)
-            }}
-          >
-            <GantryModeToggler />
-          </View>
-        )}
+        <GantryModeCard
+          visible={
+            scannerState === "STARTED" ||
+            scannerState === "PAUSED/CARD_DETECTED"
+          }
+        />
       </SafeAreaView>
+      {shouldShowCamera && (
+        <Scanner
+          isScanningEnabled={isScanningEnabled}
+          onBarCodeScanned={onBarCodeScanned}
+          onCancel={closeCamera}
+          cancelButtonText="Enter NRIC manually"
+        />
+      )}
     </View>
   );
 };

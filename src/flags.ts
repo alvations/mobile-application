@@ -1,3 +1,4 @@
 export const Flags = {
-  HELP_MODAL: true
+  HELP_MODAL: true,
+  NFC: true
 };

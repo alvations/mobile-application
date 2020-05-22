@@ -11,6 +11,20 @@ export class UpdateCountError extends Error {
   }
 }
 
+export class CanIdError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CanIdError";
+  }
+}
+
+export class OddEvenError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "OddEvenError";
+  }
+}
+
 export class GetClickerDetailsError extends Error {
   constructor(message: string) {
     super(message);
@@ -24,22 +38,22 @@ type BaseUpdateCount = {
   sessionToken: string;
   gantryMode: GantryMode;
   bypassRestriction?: boolean;
-  id?: string;
-  canId?: string;
 };
-type UpdateCountWithId = BaseUpdateCount & {
+type UpdateCountWithId = {
   id: string;
   canId?: undefined;
 };
-type UpdateCountWithCanId = BaseUpdateCount & {
+type UpdateCountWithCanId = {
   id?: undefined;
   canId: string;
 };
-type UpdateCount = UpdateCountWithCanId | UpdateCountWithId;
+export type UpdateCount = BaseUpdateCount &
+  (UpdateCountWithCanId | UpdateCountWithId);
 
 const isEvenOrOdd = (n: number): "even" | "odd" =>
   n % 2 === 0 ? "even" : "odd";
 
+let i = 0;
 const mockUpdateCount = async ({
   id,
   canId,
@@ -53,17 +67,37 @@ const mockUpdateCount = async ({
     throw new UpdateCountError("Please specify either an ID or a CAN ID");
   }
   await new Promise(res => setTimeout(() => res("done"), 1500));
+  i++;
+  if (!bypassRestriction) {
+    if (i % 2 === 0) {
+      throw new CanIdError("CAN ID not registered");
+    } else {
+      // throw new OddEvenError("Visitor does not meet odd/even requirement");
+    }
+  }
   const dayOfMonth = new Date().getDate();
   if (
-    id &&
+    canId &&
     !bypassRestriction &&
-    isEvenOrOdd(Number(id.slice(-2)[0])) !== isEvenOrOdd(dayOfMonth)
+    isEvenOrOdd(Number(canId.slice(-1)[0])) !== isEvenOrOdd(dayOfMonth)
   ) {
-    return {
-      status: "rejected",
-      message: "Visitor does not meet odd/even requirement"
-    };
+    throw new OddEvenError("Visitor does not meet odd/even requirement");
+    // return {
+    //   status: "rejected",
+    //   message: "Visitor does not meet odd/even requirement"
+    // };
   }
+  // if (
+  //   id &&
+  //   !bypassRestriction &&
+  //   isEvenOrOdd(Number(id.slice(-2)[0])) !== isEvenOrOdd(dayOfMonth)
+  // ) {
+  //   throw new OddEvenError("Visitor does not meet odd/even requirement");
+  //   // return {
+  //   //   status: "rejected",
+  //   //   message: "Visitor does not meet odd/even requirement"
+  //   // };
+  // }
   switch (gantryMode) {
     case GantryMode.checkOut:
       return {

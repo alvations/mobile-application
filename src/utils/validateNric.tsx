@@ -50,14 +50,21 @@ export const validate = (nricInput: string): boolean => {
   return nricLetterFG[letterIndex] === nricLetter;
 };
 
+export class InvalidIdError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InvalidIdError";
+  }
+}
+
 export const validateAndCleanNric = async (
   inputNric: string
 ): Promise<string> => {
   const isNricValid = await validate(inputNric);
   if (!isNricValid)
-    throw new Error("Error parsing NRIC number, please try again!");
+    throw new InvalidIdError("Error parsing NRIC number, please try again!");
   const cleanedNric = inputNric.match(nricRegex)?.[0].toUpperCase();
   if (!cleanedNric)
-    throw new Error("Error parsing NRIC number, please try again!");
+    throw new InvalidIdError("Error parsing NRIC number, please try again!");
   return cleanedNric;
 };

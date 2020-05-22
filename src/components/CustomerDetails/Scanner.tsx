@@ -18,14 +18,14 @@ const styles = StyleSheet.create({
     flex: 1
   },
   topBar: {
-    marginTop: size(0.5),
-    marginBottom: size(2),
+    marginVertical: size(2),
     marginHorizontal: size(2)
   },
   cancelButtonWrapper: {
     marginTop: size(3)
   },
   scannerWrapper: {
+    backgroundColor: "red",
     position: "relative",
     flex: 1
   }
@@ -40,20 +40,20 @@ export const Scanner: FunctionComponent<IdScanner> = ({
 }) => {
   return (
     <View style={styles.wrapper}>
-      <SafeAreaView style={styles.content}>
-        <View style={styles.topBar}>
-          <GantryModeToggler />
-        </View>
-        <View style={styles.scannerWrapper}>
-          <IdScanner
-            barCodeTypes={barCodeTypes}
-            isScanningEnabled={isScanningEnabled}
-            onBarCodeScanned={onBarCodeScanned}
-            onCancel={onCancel}
-            cancelButtonText={cancelButtonText}
-          />
-        </View>
-      </SafeAreaView>
+      {/* <SafeAreaView style={styles.content}> */}
+      <View style={styles.topBar}>
+        <GantryModeToggler />
+      </View>
+      <View style={styles.scannerWrapper}>
+        <IdScanner
+          barCodeTypes={barCodeTypes}
+          isScanningEnabled={isScanningEnabled}
+          onBarCodeScanned={onBarCodeScanned}
+          onCancel={onCancel}
+          cancelButtonText={cancelButtonText}
+        />
+      </View>
+      {/* </SafeAreaView> */}
     </View>
   );
 };
