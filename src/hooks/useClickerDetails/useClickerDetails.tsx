@@ -1,9 +1,10 @@
 import { useState, useCallback } from "react";
 import { getClickerDetails as getClickerDetailsService } from "../../services/counts";
-import * as Sentry from "sentry-expo";
+import { updateUserClicker } from "../../services/auth";
 
 export type ClickerDetailsHook = {
   getClickerDetails: () => void;
+  resetClickerDetails: () => void;
   isLoading: boolean;
   setCount: (newCount: number) => void;
   count: number;
@@ -11,11 +12,15 @@ export type ClickerDetailsHook = {
   name: string;
 };
 
-export const useClickerDetails = (sessionToken: string): ClickerDetailsHook => {
+export const useClickerDetails = (
+  sessionToken: string,
+  initialIsLoading = true
+): ClickerDetailsHook => {
   const [count, setCount] = useState(0);
   const [name, setName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(initialIsLoading);
   const [error, setError] = useState<Error>();
+
   const getClickerDetails: ClickerDetailsHook["getClickerDetails"] = useCallback(() => {
     const get = async (): Promise<void> => {
       setIsLoading(true);
@@ -35,8 +40,22 @@ export const useClickerDetails = (sessionToken: string): ClickerDetailsHook => {
     get();
   }, [sessionToken]);
 
+  const resetClickerDetails = useCallback(() => {
+    const reset = (): void => {
+      try {
+        setName("");
+        setCount(0);
+        updateUserClicker("", "", sessionToken);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    reset();
+  }, [sessionToken]);
+
   return {
     getClickerDetails,
+    resetClickerDetails,
     isLoading,
     setCount,
     count,
