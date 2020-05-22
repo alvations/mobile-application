@@ -20,8 +20,6 @@ export class GetClickerDetailsError extends Error {
 
 interface UpdateCount {
   id: string;
-  clickerUuid: string;
-  username: string;
   sessionToken: string;
   gantryMode: GantryMode;
   bypassRestriction: boolean;
@@ -32,8 +30,6 @@ const isEvenOrOdd = (n: number): "even" | "odd" =>
 
 export const mockUpdateCount = async ({
   id,
-  clickerUuid,
-  username,
   sessionToken,
   gantryMode,
   bypassRestriction = false
@@ -67,8 +63,6 @@ export const mockUpdateCount = async ({
 
 export const liveUpdateCount = async ({
   id,
-  clickerUuid,
-  username,
   sessionToken,
   gantryMode,
   bypassRestriction = false
@@ -76,8 +70,6 @@ export const liveUpdateCount = async ({
   try {
     const payload = {
       id: id,
-      clickerUuid: clickerUuid,
-      name: username,
       bypassRestriction: bypassRestriction
     };
     const cgwToken: string = process.env.CLIENT_API_KEY
@@ -114,7 +106,6 @@ export const liveUpdateCount = async ({
 };
 
 export const mockGetClickerDetails = async (
-  _clickerUuid: string,
   _sessionToken: string
 ): Promise<ClickerDetails> => {
   await new Promise(res => setTimeout(() => res("done"), 1500));
@@ -125,7 +116,6 @@ export const mockGetClickerDetails = async (
 };
 
 export const liveGetClickerDetails = async (
-  clickerUuid: string,
   sessionToken: string
 ): Promise<ClickerDetails> => {
   try {
@@ -137,7 +127,7 @@ export const liveGetClickerDetails = async (
     headers.set("USER_SESSION_ID", sessionToken);
     headers.set("Accept", "application/json");
     headers.set("CROWD_GO_WHERE_TOKEN", cgwToken);
-    const fullEndpoint = `${ENDPOINT}/entries/retrieve_entries_info?clickerUuid=${clickerUuid}`;
+    const fullEndpoint = `${ENDPOINT}/entries/retrieve_entries_info`;
     const response = await fetchWithValidator(
       ClickerDetails,
       encodeURI(fullEndpoint),

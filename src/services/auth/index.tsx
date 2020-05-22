@@ -73,7 +73,6 @@ export const mockValidateOTP = async (
 ): Promise<SessionCredentials> => {
   return {
     sessionToken: "some-valid-session-token",
-    clickerUuid: "some-clicker-uuid",
     ttl: new Date(2030, 0, 1)
   };
 };
@@ -117,7 +116,6 @@ export const mockValidateLogin = async (
   await new Promise(res => setTimeout(() => res("done"), 500));
   return {
     sessionToken: "some-valid-session-token",
-    clickerUuid: "some-clicker-uuid",
     ttl: new Date(2030, 0, 1)
   };
 };

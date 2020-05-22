@@ -12,7 +12,6 @@ export interface NavigationProps {
 
 export const SessionCredentials = t.type({
   sessionToken: t.string,
-  clickerUuid: t.string,
   ttl: DateFromNumber
 });
 

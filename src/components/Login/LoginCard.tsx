@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, useRef } from "react";
+import React, { FunctionComponent, useState, useRef, useEffect } from "react";
 import { View, StyleSheet, TextInput } from "react-native";
 import { DarkButton } from "../Layout/Buttons/DarkButton";
 import { size } from "../../common/styles";
@@ -41,7 +41,6 @@ export const LoginCard: FunctionComponent<NavigationProps> = ({
       setIsLoading(false);
       setAuthInfo({
         sessionToken: response.sessionToken,
-        clickerUuid: response.clickerUuid,
         expiry: response.ttl.getTime(),
         username
       });

@@ -82,7 +82,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
   const [nricInput, setNricInput] = useState("");
   const showHelpModal = useContext(HelpModalContext);
   const checkUpdates = useCheckUpdates();
-  const { sessionToken, username, clickerUuid } = useAuthenticationContext();
+  const { sessionToken, username } = useAuthenticationContext();
   const { config } = useConfigContext();
   const {
     getClickerDetails,
@@ -91,13 +91,13 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
     isLoading,
     error: detailsError,
     setCount
-  } = useClickerDetails(sessionToken, clickerUuid);
+  } = useClickerDetails(sessionToken);
 
   useEffect(() => {
-    if (clickerUuid && sessionToken) {
+    if (sessionToken) {
       getClickerDetails();
     }
-  }, [clickerUuid, getClickerDetails, sessionToken]);
+  }, [getClickerDetails, sessionToken]);
   // Close camera when back action is triggered
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -145,7 +145,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
     updateCountResult,
     error: countError,
     resetState
-  } = useClickerCount(sessionToken, clickerUuid, username);
+  } = useClickerCount(sessionToken);
 
   const onCancel = useCallback((): void => {
     setNricInput("");

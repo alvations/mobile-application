@@ -26,11 +26,7 @@ export type ClickerCountHook = {
   resetState: () => void;
 };
 
-export const useClickerCount = (
-  sessionToken: string,
-  clickerUuid: string,
-  username: string
-): ClickerCountHook => {
+export const useClickerCount = (sessionToken: string): ClickerCountHook => {
   const [updateCountState, setUpdateCountState] = useState<UpdateCountState>(
     "DEFAULT"
   );
@@ -68,8 +64,6 @@ export const useClickerCount = (
         try {
           const result = await updateCountService({
             id: cleanedId,
-            clickerUuid,
-            username,
             sessionToken,
             gantryMode,
             bypassRestriction
@@ -91,7 +85,7 @@ export const useClickerCount = (
       };
       update();
     },
-    [clickerUuid, sessionToken, username]
+    [sessionToken]
   );
 
   return {
