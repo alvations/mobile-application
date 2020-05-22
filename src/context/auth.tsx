@@ -56,7 +56,7 @@ export const AuthenticationContextProvider: FunctionComponent = ({
     loginToken
   }): Promise<void> => {
     setLoginToken(loginToken);
-    await AsyncStorage.multiSet([[LOGIN_TOKEN_KEY, loginToken]]);
+    await AsyncStorage.setItem(LOGIN_TOKEN_KEY, loginToken);
   };
 
   const setClickerInfo: AuthenticationContext["setClickerInfo"] = async ({
@@ -80,7 +80,7 @@ export const AuthenticationContextProvider: FunctionComponent = ({
 
   const clearLoginInfo = useCallback(async (): Promise<void> => {
     setLoginToken("");
-    await AsyncStorage.multiRemove([LOGIN_TOKEN_KEY]);
+    await AsyncStorage.removeItem(LOGIN_TOKEN_KEY);
   }, []);
 
   const clearClickerInfo = useCallback(async (): Promise<void> => {

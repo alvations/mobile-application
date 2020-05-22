@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     backgroundColor: color("grey", 0),
     borderWidth: 1,
     borderRadius: borderRadius(2),
-    borderColor: color("grey", 40),
+    borderColor: color("grey", 30),
     fontSize: fontSize(0),
     color: color("blue", 50),
     minWidth: size(7)
@@ -70,6 +70,7 @@ export const LoginMobileNumberCard: FunctionComponent<LoginMobileNumberCard> = (
   const [countryCode, setCountryCode] = useState("+65");
   const [mobileNumberValue, setMobileNumberValue] = useState("");
   const { setLoginInfo } = useAuthenticationContext();
+
   const onChangeCountryCode = (value: string): void => {
     if (value.length <= 4) {
       const valueWithPlusSign = value[0] === "+" ? value : `+${value}`;
@@ -120,7 +121,7 @@ export const LoginMobileNumberCard: FunctionComponent<LoginMobileNumberCard> = (
               onChange={({ nativeEvent: { text } }) =>
                 onChangeCountryCode(text)
               }
-              editable={false}
+              editable={false} // Temporarily disable changing of country code
             />
             <AppText style={styles.hyphen}>-</AppText>
             <TextInput

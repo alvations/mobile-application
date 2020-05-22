@@ -68,18 +68,6 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
     }
   }, [navigation, sessionToken]);
 
-  const renderLoginCard: () => void = () => {
-    if (loginStage === "CLICKER") {
-      return (
-        <LoginCard setLoginStage={setLoginStage} navigation={navigation} />
-      );
-    } else if (loginStage === "OTP") {
-      return <LoginOTPCard setLoginStage={setLoginStage} />;
-    } else {
-      return <LoginMobileNumberCard setLoginStage={setLoginStage} />;
-    }
-  };
-
   return isLoading ? (
     <LoadingView />
   ) : (
@@ -100,7 +88,18 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
                 <Banner {...messageContent} />
               </View>
             )}
-            {renderLoginCard()}
+            {loginStage === "MOBILE_NUMBER" && (
+              <LoginMobileNumberCard setLoginStage={setLoginStage} />
+            )}
+            {loginStage === "OTP" && (
+              <LoginOTPCard setLoginStage={setLoginStage} />
+            )}
+            {loginStage === "CLICKER" && (
+              <LoginCard
+                setLoginStage={setLoginStage}
+                navigation={navigation}
+              />
+            )}
             <FeatureToggler feature="HELP_MODAL">
               <HelpButton onPress={showHelpModal} />
             </FeatureToggler>
