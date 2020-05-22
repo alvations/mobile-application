@@ -5,7 +5,7 @@ import {
   NavigationContainerComponent
 } from "react-navigation";
 import StackNavigator from "./StackNavigator";
-import { StatusBar, View, Platform } from "react-native";
+import { StatusBar, View } from "react-native";
 import LoginScreen from "./LoginScreen";
 import { useAppState } from "../hooks/useAppState";
 import { useCheckUpdates } from "../hooks/useCheckUpdates";

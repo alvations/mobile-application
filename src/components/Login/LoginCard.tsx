@@ -14,7 +14,6 @@ import { InputWithLabel } from "../Layout/InputWithLabel";
 import { NavigationProps } from "../../types";
 import { useAuthenticationContext } from "../../context/auth";
 import { updateUserClicker } from "../../services/auth";
-import { useEffect } from "@storybook/addons";
 import { LoginStage } from "./types";
 
 const styles = StyleSheet.create({
