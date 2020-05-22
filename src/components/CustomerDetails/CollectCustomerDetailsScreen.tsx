@@ -82,7 +82,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
   const [nricInput, setNricInput] = useState("");
   const showHelpModal = useContext(HelpModalContext);
   const checkUpdates = useCheckUpdates();
-  const { sessionToken, username } = useAuthenticationContext();
+  const { sessionToken } = useAuthenticationContext();
   const { config } = useConfigContext();
   const {
     getClickerDetails,

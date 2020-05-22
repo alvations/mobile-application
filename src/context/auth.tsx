@@ -9,7 +9,6 @@ import React, {
 import { AsyncStorage } from "react-native";
 
 export const SESSION_TOKEN_KEY = "SESSION_TOKEN";
-export const CLICKER_UUID_KEY = "CLICKER_UUID";
 export const EXPIRY_KEY = "EXPIRY_KEY";
 export const USERNAME = "USERNAME";
 
@@ -68,7 +67,6 @@ export const AuthenticationContextProvider: FunctionComponent = ({
   const loadAuthFromStore = async (): Promise<void> => {
     const values = await AsyncStorage.multiGet([
       SESSION_TOKEN_KEY,
-      CLICKER_UUID_KEY,
       EXPIRY_KEY,
       USERNAME
     ]);
