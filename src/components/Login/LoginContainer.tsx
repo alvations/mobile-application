@@ -27,6 +27,7 @@ import { LoginCard } from "./LoginCard";
 import { LoginOTPCard } from "./LoginOTPCard";
 import { LoginMobileNumberCard } from "./LoginMobileNumberCard";
 import { LoginStage } from "./types";
+import { LoadingView } from "../Loading";
 
 const styles = StyleSheet.create({
   content: {
@@ -56,7 +57,7 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
     Sentry.addBreadcrumb({ category: "navigation", message: "LoginContainer" });
   }, []);
 
-  const { sessionToken } = useAuthenticationContext();
+  const { isLoading, sessionToken } = useAuthenticationContext();
   const showHelpModal = useContext(HelpModalContext);
   const messageContent = useContext(ImportantMessageContentContext);
   const [loginStage, setLoginStage] = useState<LoginStage>("MOBILE_NUMBER");
@@ -79,7 +80,9 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
     }
   };
 
-  return (
+  return isLoading ? (
+    <LoadingView />
+  ) : (
     <>
       <TopBackground style={{ height: "50%" }} />
       <ScrollView

@@ -13,6 +13,7 @@ export const EXPIRY_KEY = "EXPIRY_KEY";
 export const USERNAME = "USERNAME";
 
 interface AuthenticationContext {
+  isLoading: boolean;
   loginToken: string;
   sessionToken: string;
   expiry: string;
@@ -26,6 +27,7 @@ interface AuthenticationContext {
 }
 
 export const AuthenticationContext = createContext<AuthenticationContext>({
+  isLoading: true,
   loginToken: "",
   sessionToken: "",
   expiry: "",
@@ -44,6 +46,7 @@ export const useAuthenticationContext = (): AuthenticationContext =>
 export const AuthenticationContextProvider: FunctionComponent = ({
   children
 }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const [loginToken, setLoginToken] = useState("");
   const [sessionToken, setSessionToken] = useState("");
   const [expiry, setExpiry] = useState("");
@@ -121,14 +124,21 @@ export const AuthenticationContextProvider: FunctionComponent = ({
   };
 
   useEffect(() => {
-    loadAuthFromStore();
-    loadLoginFromStore();
-    loadClickerFromStore();
+    const load = async (): Promise<void> => {
+      await Promise.all([
+        loadAuthFromStore(),
+        loadLoginFromStore(),
+        loadClickerFromStore()
+      ]);
+      setIsLoading(false);
+    };
+    load();
   }, []);
 
   return (
     <AuthenticationContext.Provider
       value={{
+        isLoading,
         loginToken,
         sessionToken,
         expiry,
