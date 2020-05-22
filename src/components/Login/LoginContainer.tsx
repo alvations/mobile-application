@@ -56,16 +56,16 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
     Sentry.addBreadcrumb({ category: "navigation", message: "LoginContainer" });
   }, []);
 
-  const { sessionToken, clickerUuid } = useAuthenticationContext();
+  const { sessionToken } = useAuthenticationContext();
   const showHelpModal = useContext(HelpModalContext);
   const messageContent = useContext(ImportantMessageContentContext);
   const [loginStage, setLoginStage] = useState<LoginStage>("MOBILE_NUMBER");
 
   useLayoutEffect(() => {
-    if (sessionToken && clickerUuid) {
+    if (sessionToken) {
       navigation.navigate("CollectCustomerDetailsScreen");
     }
-  }, [navigation, sessionToken, clickerUuid]);
+  }, [navigation, sessionToken]);
 
   const renderLoginCard: () => void = () => {
     if (loginStage === "CLICKER") {
