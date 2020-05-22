@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useCallback } from "react";
 import { color, size } from "../../common/styles";
 import { View, StyleSheet, Alert, TouchableOpacity } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { withNavigation } from "react-navigation";
 import { NavigationProps } from "../../types";
 import { AppName } from "./AppName";
@@ -12,8 +12,7 @@ const styles = StyleSheet.create({
   appHeaderWrapper: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "100%",
-    alignItems: "center"
+    width: "100%"
   }
 });
 
@@ -54,14 +53,10 @@ export const AppHeaderComponent: FunctionComponent<NavigationProps> = ({
             alignItems: "flex-end"
           }}
         >
-          <AppText style={{ color: color("grey", 0), marginRight: size(0.5) }}>
-            Logout
+          <AppText style={{ color: color("grey", 0) }}>
+            {"Logout  "}
+            <Feather name="log-out" size={size(2)} color={color("grey", 0)} />
           </AppText>
-          <MaterialCommunityIcons
-            name="logout"
-            size={size(2)}
-            color={color("grey", 0)}
-          />
         </View>
       </TouchableOpacity>
     </View>
