@@ -1,4 +1,4 @@
-import { Updates } from "expo";
+import * as Updates from "expo-updates";
 import { AsyncStorage } from "react-native";
 import * as Sentry from "sentry-expo";
 import { differenceInMinutes } from "date-fns";

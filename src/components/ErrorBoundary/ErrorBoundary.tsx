@@ -1,6 +1,6 @@
 import React, { Component, ReactNode } from "react";
 import * as Sentry from "sentry-expo";
-import { Updates } from "expo";
+import * as Updates from "expo-updates";
 import { AppText } from "../Layout/AppText";
 import { StyleSheet, View, Linking } from "react-native";
 import { size, fontSize, color } from "../../common/styles";
