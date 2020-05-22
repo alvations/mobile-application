@@ -14,29 +14,23 @@ export const USERNAME = "USERNAME";
 
 interface AuthenticationContext {
   isLoading: boolean;
-  loginToken: string;
   sessionToken: string;
   expiry: string;
   username: string;
-  setLoginInfo: (params: { loginToken: string }) => void;
   setAuthInfo: (params: { sessionToken: string; expiry: number }) => void;
   setClickerInfo: (params: { username: string }) => void;
   clearAuthInfo: () => void;
-  clearLoginInfo: () => void;
   clearClickerInfo: () => void;
 }
 
 export const AuthenticationContext = createContext<AuthenticationContext>({
   isLoading: true,
-  loginToken: "",
   sessionToken: "",
   expiry: "",
   username: "",
-  setLoginInfo: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   setClickerInfo: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   setAuthInfo: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   clearAuthInfo: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
-  clearLoginInfo: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
   clearClickerInfo: () => {} // eslint-disable-line @typescript-eslint/no-empty-function
 });
 
@@ -47,17 +41,9 @@ export const AuthenticationContextProvider: FunctionComponent = ({
   children
 }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [loginToken, setLoginToken] = useState("");
   const [sessionToken, setSessionToken] = useState("");
   const [expiry, setExpiry] = useState("");
   const [username, setUsername] = useState("");
-
-  const setLoginInfo: AuthenticationContext["setLoginInfo"] = async ({
-    loginToken
-  }): Promise<void> => {
-    setLoginToken(loginToken);
-    await AsyncStorage.setItem(LOGIN_TOKEN_KEY, loginToken);
-  };
 
   const setClickerInfo: AuthenticationContext["setClickerInfo"] = async ({
     username
@@ -77,11 +63,6 @@ export const AuthenticationContextProvider: FunctionComponent = ({
       [EXPIRY_KEY, expiry.toString()]
     ]);
   };
-
-  const clearLoginInfo = useCallback(async (): Promise<void> => {
-    setLoginToken("");
-    await AsyncStorage.removeItem(LOGIN_TOKEN_KEY);
-  }, []);
 
   const clearClickerInfo = useCallback(async (): Promise<void> => {
     setUsername("");
@@ -116,20 +97,9 @@ export const AuthenticationContextProvider: FunctionComponent = ({
     }
   };
 
-  const loadLoginFromStore = async (): Promise<void> => {
-    const loginToken = await AsyncStorage.getItem(LOGIN_TOKEN_KEY);
-    if (loginToken) {
-      setLoginToken(loginToken);
-    }
-  };
-
   useEffect(() => {
     const load = async (): Promise<void> => {
-      await Promise.all([
-        loadAuthFromStore(),
-        loadLoginFromStore(),
-        loadClickerFromStore()
-      ]);
+      await Promise.all([loadAuthFromStore(), loadClickerFromStore()]);
       setIsLoading(false);
     };
     load();
@@ -139,16 +109,13 @@ export const AuthenticationContextProvider: FunctionComponent = ({
     <AuthenticationContext.Provider
       value={{
         isLoading,
-        loginToken,
         sessionToken,
         expiry,
         username,
-        setLoginInfo,
         setClickerInfo,
         setAuthInfo,
         clearAuthInfo,
-        clearClickerInfo,
-        clearLoginInfo
+        clearClickerInfo
       }}
     >
       {children}

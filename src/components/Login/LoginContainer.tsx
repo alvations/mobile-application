@@ -57,10 +57,12 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
     Sentry.addBreadcrumb({ category: "navigation", message: "LoginContainer" });
   }, []);
 
-  const { isLoading, sessionToken } = useAuthenticationContext();
+  const { isLoading, sessionToken, setAuthInfo } = useAuthenticationContext();
   const showHelpModal = useContext(HelpModalContext);
   const messageContent = useContext(ImportantMessageContentContext);
+
   const [loginStage, setLoginStage] = useState<LoginStage>("MOBILE_NUMBER");
+  const [loginToken, setLoginToken] = useState<string>("");
 
   useLayoutEffect(() => {
     if (sessionToken) {
@@ -89,10 +91,28 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
               </View>
             )}
             {loginStage === "MOBILE_NUMBER" && (
-              <LoginMobileNumberCard setLoginStage={setLoginStage} />
+              <LoginMobileNumberCard
+                onSuccess={loginToken => {
+                  setLoginToken(loginToken);
+                  setLoginStage("OTP");
+                }}
+              />
             )}
             {loginStage === "OTP" && (
-              <LoginOTPCard setLoginStage={setLoginStage} />
+              <LoginOTPCard
+                loginToken={loginToken}
+                onSuccess={(sessionToken, expiry) => {
+                  setAuthInfo({
+                    sessionToken,
+                    expiry
+                  });
+                  setLoginStage("CLICKER");
+                  setLoginToken("");
+                }}
+                onFailure={() => {
+                  setLoginStage("MOBILE_NUMBER");
+                }}
+              />
             )}
             {loginStage === "CLICKER" && (
               <LoginCard

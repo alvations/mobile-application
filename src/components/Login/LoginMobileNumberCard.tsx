@@ -1,17 +1,10 @@
-import React, {
-  useState,
-  FunctionComponent,
-  Dispatch,
-  SetStateAction
-} from "react";
+import React, { useState, FunctionComponent } from "react";
 import { View, StyleSheet, TextInput } from "react-native";
 import { DarkButton } from "../Layout/Buttons/DarkButton";
 import { size, color, borderRadius, fontSize } from "../../common/styles";
 import { Card } from "../Layout/Card";
 import { AppText } from "../Layout/AppText";
-import { LoginStage } from "./types";
 import { loginRequest } from "../../services/auth";
-import { useAuthenticationContext } from "../../context/auth";
 import { mobileNumberValidator, countryCodeValidator } from "./utils";
 
 const styles = StyleSheet.create({
@@ -60,16 +53,15 @@ const styles = StyleSheet.create({
 });
 
 interface LoginMobileNumberCard {
-  setLoginStage: Dispatch<SetStateAction<LoginStage>>;
+  onSuccess: (loginToken: string) => void;
 }
 
 export const LoginMobileNumberCard: FunctionComponent<LoginMobileNumberCard> = ({
-  setLoginStage
+  onSuccess
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [countryCode, setCountryCode] = useState("+65");
   const [mobileNumberValue, setMobileNumberValue] = useState("");
-  const { setLoginInfo } = useAuthenticationContext();
 
   const onChangeCountryCode = (value: string): void => {
     if (value.length <= 4) {
@@ -87,8 +79,7 @@ export const LoginMobileNumberCard: FunctionComponent<LoginMobileNumberCard> = (
     try {
       const response = await loginRequest(mobileNumberValue);
       setIsLoading(false);
-      setLoginInfo({ loginToken: response.loginUuid });
-      setLoginStage("OTP");
+      onSuccess(response.loginUuid);
     } catch (e) {
       setIsLoading(false);
       alert(e);

@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  FunctionComponent,
-  Dispatch,
-  SetStateAction
-} from "react";
+import React, { useState, useEffect, FunctionComponent } from "react";
 import { View, StyleSheet } from "react-native";
 import { DarkButton } from "../Layout/Buttons/DarkButton";
 import { SecondaryButton } from "../Layout/Buttons/SecondaryButton";
@@ -12,8 +6,6 @@ import { size, fontSize } from "../../common/styles";
 import { Card } from "../Layout/Card";
 import { AppText } from "../Layout/AppText";
 import { InputWithLabel } from "../Layout/InputWithLabel";
-import { LoginStage } from "./types";
-import { useAuthenticationContext } from "../../context/auth";
 import { validateOTP, requestOTP } from "../../services/auth";
 
 const RESEND_OTP_TIME_LIMIT = 60 * 1000;
@@ -35,11 +27,15 @@ const styles = StyleSheet.create({
 });
 
 interface LoginOTPCard {
-  setLoginStage: Dispatch<SetStateAction<LoginStage>>;
+  loginToken: string;
+  onSuccess: (sessionToken: string, expiry: number) => void;
+  onFailure: () => void;
 }
 
 export const LoginOTPCard: FunctionComponent<LoginOTPCard> = ({
-  setLoginStage
+  loginToken,
+  onSuccess,
+  onFailure
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -47,11 +43,6 @@ export const LoginOTPCard: FunctionComponent<LoginOTPCard> = ({
   const [resendDisabledTime, setResendDisabledTime] = useState(
     RESEND_OTP_TIME_LIMIT
   );
-  const {
-    setAuthInfo,
-    loginToken,
-    clearLoginInfo
-  } = useAuthenticationContext();
 
   useEffect(() => {
     const resendTimer = setTimeout(() => {
@@ -73,19 +64,14 @@ export const LoginOTPCard: FunctionComponent<LoginOTPCard> = ({
     setIsLoading(true);
     try {
       if (!loginToken) {
-        setLoginStage("MOBILE_NUMBER");
+        onFailure();
         alert(
           "Sorry, you do not have a login session, please try logging in again"
         );
       }
       const response = await validateOTP(otp, loginToken);
       setIsLoading(false);
-      setAuthInfo({
-        sessionToken: response.sessionToken,
-        expiry: response.ttl.getTime()
-      });
-      await clearLoginInfo();
-      setLoginStage("CLICKER");
+      onSuccess(response.sessionToken, response.ttl.getTime());
     } catch (e) {
       setIsLoading(false);
       alert(e);
