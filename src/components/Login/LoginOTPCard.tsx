@@ -68,6 +68,7 @@ export const LoginOTPCard: FunctionComponent<LoginOTPCard> = ({
         alert(
           "Sorry, you do not have a login session, please try logging in again"
         );
+        return;
       }
       const response = await validateOTP(otp, loginToken);
       setIsLoading(false);

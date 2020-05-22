@@ -1,20 +1,12 @@
-import React, {
-  FunctionComponent,
-  useState,
-  useRef,
-  Dispatch,
-  SetStateAction
-} from "react";
+import React, { FunctionComponent, useState, useRef } from "react";
 import { View, StyleSheet, TextInput } from "react-native";
 import { DarkButton } from "../Layout/Buttons/DarkButton";
 import { size } from "../../common/styles";
 import { Card } from "../Layout/Card";
 import { AppText } from "../Layout/AppText";
 import { InputWithLabel } from "../Layout/InputWithLabel";
-import { NavigationProps } from "../../types";
 import { useAuthenticationContext } from "../../context/auth";
 import { updateUserClicker } from "../../services/auth";
-import { LoginStage } from "./types";
 
 const styles = StyleSheet.create({
   inputAndButtonWrapper: {
@@ -28,40 +20,34 @@ const styles = StyleSheet.create({
   }
 });
 
-interface LoginCard extends NavigationProps {
-  setLoginStage: Dispatch<SetStateAction<LoginStage>>;
+interface LoginCard {
+  onSuccess: (locationName: string) => void;
+  onExpiredSessionToken: () => void;
 }
 export const LoginCard: FunctionComponent<LoginCard> = ({
-  setLoginStage,
-  navigation
+  onSuccess,
+  onExpiredSessionToken
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [branchCode, setBranchCode] = useState("");
-  const [username, setUsername] = useState("");
-  const { setClickerInfo, sessionToken } = useAuthenticationContext();
+  const [locationName, setLocationName] = useState("");
+  const { sessionToken } = useAuthenticationContext();
 
   const secondInputRef = useRef<TextInput>(null);
   const onSubmit = async (): Promise<void> => {
     setIsLoading(true);
     try {
-      if (username.length <= 0) {
+      if (locationName.length <= 0) {
         throw new Error("Please specify your name");
       }
       if (!sessionToken) {
-        setLoginStage("MOBILE_NUMBER");
+        onExpiredSessionToken();
         alert("Sorry, your login session was lost, please log in again!");
         return;
       }
-      const response = await updateUserClicker(
-        branchCode,
-        username,
-        sessionToken
-      );
+      await updateUserClicker(branchCode, locationName, sessionToken);
       setIsLoading(false);
-      setClickerInfo({
-        username: response.username
-      });
-      navigation.navigate("CollectCustomerDetailsScreen");
+      onSuccess(locationName);
     } catch (e) {
       setIsLoading(false);
       alert(e);
@@ -88,8 +74,8 @@ export const LoginCard: FunctionComponent<LoginCard> = ({
           <InputWithLabel
             ref={secondInputRef}
             label="Location name"
-            value={username}
-            onChange={({ nativeEvent: { text } }) => setUsername(text)}
+            value={locationName}
+            onChange={({ nativeEvent: { text } }) => setLocationName(text)}
             onSubmitEditing={onSubmit}
           />
         </View>

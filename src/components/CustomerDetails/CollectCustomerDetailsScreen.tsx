@@ -14,9 +14,10 @@ import {
   Vibration,
   Platform,
   BackHandler,
-  Keyboard
+  Keyboard,
+  ActivityIndicator
 } from "react-native";
-import { size } from "../../common/styles";
+import { size, color } from "../../common/styles";
 import { Card } from "../Layout/Card";
 import { AppText } from "../Layout/AppText";
 import { TopBackground } from "../Layout/TopBackground";
@@ -43,6 +44,7 @@ import { useValidateExpiry } from "../../hooks/useValidateExpiry";
 import { MetaDataCard } from "./MetaDataCard";
 import { useClickerCount } from "../../hooks/useClickerCount/useClickerCount";
 import { useClickerDetails } from "../../hooks/useClickerDetails/useClickerDetails";
+import { LoginCard } from "../Login/LoginCard";
 
 const styles = StyleSheet.create({
   content: {
@@ -78,26 +80,14 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
   }, []);
 
   const messageContent = useContext(ImportantMessageContentContext);
-  const [shouldShowCamera, setShouldShowCamera] = useState(false);
-  const [nricInput, setNricInput] = useState("");
   const showHelpModal = useContext(HelpModalContext);
-  const checkUpdates = useCheckUpdates();
   const { sessionToken } = useAuthenticationContext();
   const { config } = useConfigContext();
-  const {
-    getClickerDetails,
-    count,
-    name,
-    isLoading,
-    error: detailsError,
-    setCount
-  } = useClickerDetails(sessionToken);
 
-  useEffect(() => {
-    if (sessionToken) {
-      getClickerDetails();
-    }
-  }, [getClickerDetails, sessionToken]);
+  const [shouldShowCamera, setShouldShowCamera] = useState(false);
+  const [nricInput, setNricInput] = useState("");
+  const [locationName, setLocationName] = useState("");
+
   // Close camera when back action is triggered
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -124,6 +114,7 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
 
   // Check for updates whenever this screen is focused
   // and when the camera is hidden
+  const checkUpdates = useCheckUpdates();
   useEffect(() => {
     if (isFocused && !shouldShowCamera) {
       checkUpdates();
@@ -138,6 +129,22 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
       validateTokenExpiry();
     }
   }, [isFocused, validateTokenExpiry, shouldShowCamera]);
+
+  const {
+    getClickerDetails,
+    resetClickerDetails,
+    count,
+    name,
+    isLoading,
+    error: detailsError,
+    setCount
+  } = useClickerDetails(sessionToken);
+
+  useEffect(() => {
+    if (sessionToken) {
+      getClickerDetails();
+    }
+  }, [getClickerDetails, sessionToken]);
 
   const {
     updateCountState,
@@ -207,25 +214,59 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
               </View>
             )}
 
-            <View style={styles.rowWrapper}>
-              <MetaDataCard
-                clickerName={name}
-                count={count}
-                isLoading={isLoading}
-                refreshCallback={getClickerDetails}
-              />
-            </View>
-            <Card>
-              <AppText>Scan NRIC/FIN or manually enter it</AppText>
-              <InputNricSection
-                openCamera={() => setShouldShowCamera(true)}
-                nricInput={nricInput}
-                setNricInput={setNricInput}
-                submitNric={(bypassRestriction?: boolean) =>
-                  updateCount(nricInput, config.gantryMode, bypassRestriction)
-                }
-              />
-            </Card>
+            {isLoading && name === "" ? (
+              <View style={styles.rowWrapper}>
+                <Card
+                  style={{
+                    height: 256,
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  <ActivityIndicator size="large" color={color("grey", 40)} />
+                </Card>
+              </View>
+            ) : !isLoading && name === "" ? (
+              <View style={styles.rowWrapper}>
+                <LoginCard
+                  onSuccess={locationName => {
+                    setLocationName(locationName);
+                    getClickerDetails();
+                  }}
+                  onExpiredSessionToken={() =>
+                    navigation.navigate("LoginScreen")
+                  }
+                />
+              </View>
+            ) : (
+              <>
+                <View style={styles.rowWrapper}>
+                  <MetaDataCard
+                    clickerName={name}
+                    locationName={locationName}
+                    count={count}
+                    isLoading={isLoading}
+                    refreshCallback={getClickerDetails}
+                    onChangeClicker={resetClickerDetails}
+                  />
+                </View>
+                <Card>
+                  <AppText>Scan NRIC/FIN or manually enter it</AppText>
+                  <InputNricSection
+                    openCamera={() => setShouldShowCamera(true)}
+                    nricInput={nricInput}
+                    setNricInput={setNricInput}
+                    submitNric={(bypassRestriction?: boolean) =>
+                      updateCount(
+                        nricInput,
+                        config.gantryMode,
+                        bypassRestriction
+                      )
+                    }
+                  />
+                </Card>
+              </>
+            )}
             <FeatureToggler feature="HELP_MODAL">
               <HelpButton onPress={showHelpModal} />
             </FeatureToggler>

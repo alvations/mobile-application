@@ -19,7 +19,7 @@ interface LogoutHook {
 
 export const useLogout = (): LogoutHook => {
   const setMessageContent = useContext(ImportantMessageSetterContext);
-  const { clearAuthInfo, clearClickerInfo } = useAuthenticationContext();
+  const { clearAuthInfo } = useAuthenticationContext();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const logout: LogoutHook["logout"] = useCallback(
@@ -29,7 +29,6 @@ export const useLogout = (): LogoutHook => {
       }
       setIsLoggingOut(true);
       await clearAuthInfo();
-      await clearClickerInfo();
       setMessageContent(null);
       setIsLoggingOut(false);
       navigationDispatch?.(
@@ -42,7 +41,7 @@ export const useLogout = (): LogoutHook => {
         Alert.alert(title, description);
       }
     },
-    [clearAuthInfo, clearClickerInfo, setMessageContent]
+    [clearAuthInfo, setMessageContent]
   );
 
   return {

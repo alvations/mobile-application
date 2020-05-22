@@ -23,7 +23,6 @@ import { HelpButton } from "../Layout/Buttons/HelpButton";
 import { FeatureToggler } from "../FeatureToggler/FeatureToggler";
 import { ImportantMessageContentContext } from "../../context/importantMessage";
 import { Banner } from "../Layout/Banner";
-import { LoginCard } from "./LoginCard";
 import { LoginOTPCard } from "./LoginOTPCard";
 import { LoginMobileNumberCard } from "./LoginMobileNumberCard";
 import { LoginStage } from "./types";
@@ -106,18 +105,11 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
                     sessionToken,
                     expiry
                   });
-                  setLoginStage("CLICKER");
-                  setLoginToken("");
+                  navigation.navigate("CollectCustomerDetailsScreen");
                 }}
                 onFailure={() => {
                   setLoginStage("MOBILE_NUMBER");
                 }}
-              />
-            )}
-            {loginStage === "CLICKER" && (
-              <LoginCard
-                setLoginStage={setLoginStage}
-                navigation={navigation}
               />
             )}
             <FeatureToggler feature="HELP_MODAL">
