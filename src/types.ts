@@ -10,6 +10,19 @@ export interface NavigationProps {
   navigation: NavigationScreenProp<NavigationRoute, NavigationParams>;
 }
 
+export const LoginCredentials = t.type({
+  loginUuid: t.string
+});
+
+export type LoginCredentials = t.TypeOf<typeof LoginCredentials>;
+
+export const ClickerCredentials = t.type({
+  clickerUuid: t.string,
+  username: t.string
+});
+
+export type ClickerCredentials = t.TypeOf<typeof ClickerCredentials>;
+
 export const SessionCredentials = t.type({
   sessionToken: t.string,
   ttl: DateFromNumber

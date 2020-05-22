@@ -10,12 +10,9 @@ import { size, color, borderRadius, fontSize } from "../../common/styles";
 import { Card } from "../Layout/Card";
 import { AppText } from "../Layout/AppText";
 import { LoginStage } from "./types";
-import { requestOTP } from "../../services/auth";
-import {
-  mobileNumberValidator,
-  countryCodeValidator,
-  createFullNumber
-} from "./utils";
+import { loginRequest } from "../../services/auth";
+import { useAuthenticationContext } from "../../context/auth";
+import { mobileNumberValidator, countryCodeValidator } from "./utils";
 
 const styles = StyleSheet.create({
   inputAndButtonWrapper: {
@@ -64,21 +61,15 @@ const styles = StyleSheet.create({
 
 interface LoginMobileNumberCard {
   setLoginStage: Dispatch<SetStateAction<LoginStage>>;
-  setMobileNumber: Dispatch<SetStateAction<string>>;
-  codeKey: string;
-  endpoint: string;
 }
 
 export const LoginMobileNumberCard: FunctionComponent<LoginMobileNumberCard> = ({
-  setLoginStage,
-  setMobileNumber,
-  codeKey,
-  endpoint
+  setLoginStage
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [countryCode, setCountryCode] = useState("+65");
   const [mobileNumberValue, setMobileNumberValue] = useState("");
-
+  const { setLoginInfo } = useAuthenticationContext();
   const onChangeCountryCode = (value: string): void => {
     if (value.length <= 4) {
       const valueWithPlusSign = value[0] === "+" ? value : `+${value}`;
@@ -90,13 +81,12 @@ export const LoginMobileNumberCard: FunctionComponent<LoginMobileNumberCard> = (
     /^\d*$/.test(text) && setMobileNumberValue(text);
   };
 
-  const onRequestOTP = async (): Promise<void> => {
+  const startLoginRequest = async (): Promise<void> => {
     setIsLoading(true);
     try {
-      const fullNumber = createFullNumber(countryCode, mobileNumberValue);
-      await requestOTP(fullNumber, codeKey, endpoint);
+      const response = await loginRequest(mobileNumberValue);
       setIsLoading(false);
-      setMobileNumber(fullNumber);
+      setLoginInfo({ loginToken: response.loginUuid });
       setLoginStage("OTP");
     } catch (e) {
       setIsLoading(false);
@@ -110,7 +100,7 @@ export const LoginMobileNumberCard: FunctionComponent<LoginMobileNumberCard> = (
     } else if (!mobileNumberValidator(countryCode, mobileNumberValue)) {
       alert("Invalid mobile phone number");
     } else {
-      onRequestOTP();
+      startLoginRequest();
     }
   };
 
@@ -130,6 +120,7 @@ export const LoginMobileNumberCard: FunctionComponent<LoginMobileNumberCard> = (
               onChange={({ nativeEvent: { text } }) =>
                 onChangeCountryCode(text)
               }
+              editable={false}
             />
             <AppText style={styles.hyphen}>-</AppText>
             <TextInput

@@ -1,1 +1,1 @@
-export type LoginStage = "SCAN" | "MOBILE_NUMBER" | "OTP";
+export type LoginStage = "MOBILE_NUMBER" | "OTP" | "CLICKER";

@@ -1,4 +1,10 @@
-import React, { useState, useEffect, FunctionComponent } from "react";
+import React, {
+  useState,
+  useEffect,
+  FunctionComponent,
+  Dispatch,
+  SetStateAction
+} from "react";
 import { View, StyleSheet } from "react-native";
 import { DarkButton } from "../Layout/Buttons/DarkButton";
 import { SecondaryButton } from "../Layout/Buttons/SecondaryButton";
@@ -6,11 +12,11 @@ import { size, fontSize } from "../../common/styles";
 import { Card } from "../Layout/Card";
 import { AppText } from "../Layout/AppText";
 import { InputWithLabel } from "../Layout/InputWithLabel";
-import { NavigationProps } from "../../types";
+import { LoginStage } from "./types";
 import { useAuthenticationContext } from "../../context/auth";
 import { validateOTP, requestOTP } from "../../services/auth";
 
-const RESEND_OTP_TIME_LIMIT = 30 * 1000;
+const RESEND_OTP_TIME_LIMIT = 60 * 1000;
 
 const styles = StyleSheet.create({
   inputAndButtonWrapper: {
@@ -28,25 +34,24 @@ const styles = StyleSheet.create({
   }
 });
 
-interface LoginOTPCard extends NavigationProps {
-  mobileNumber: string;
-  codeKey: string;
-  endpoint: string;
+interface LoginOTPCard {
+  setLoginStage: Dispatch<SetStateAction<LoginStage>>;
 }
 
 export const LoginOTPCard: FunctionComponent<LoginOTPCard> = ({
-  navigation,
-  mobileNumber,
-  codeKey,
-  endpoint
+  setLoginStage
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const [oTPValue, setOTPValue] = useState("");
+  const [otpValue, setOTPValue] = useState("");
   const [resendDisabledTime, setResendDisabledTime] = useState(
     RESEND_OTP_TIME_LIMIT
   );
-  const { setAuthInfo } = useAuthenticationContext();
+  const {
+    setAuthInfo,
+    loginToken,
+    clearLoginInfo
+  } = useAuthenticationContext();
 
   useEffect(() => {
     const resendTimer = setTimeout(() => {
@@ -67,10 +72,20 @@ export const LoginOTPCard: FunctionComponent<LoginOTPCard> = ({
   const onValidateOTP = async (otp: string): Promise<void> => {
     setIsLoading(true);
     try {
-      const response = await validateOTP(otp, mobileNumber, codeKey, endpoint);
+      if (!loginToken) {
+        setLoginStage("MOBILE_NUMBER");
+        alert(
+          "Sorry, you do not have a login session, please try logging in again"
+        );
+      }
+      const response = await validateOTP(otp, loginToken);
       setIsLoading(false);
-      setAuthInfo(response.sessionToken, response.ttl.getTime(), endpoint);
-      navigation.navigate("CollectCustomerDetailsScreen");
+      setAuthInfo({
+        sessionToken: response.sessionToken,
+        expiry: response.ttl.getTime()
+      });
+      await clearLoginInfo();
+      setLoginStage("CLICKER");
     } catch (e) {
       setIsLoading(false);
       alert(e);
@@ -78,13 +93,13 @@ export const LoginOTPCard: FunctionComponent<LoginOTPCard> = ({
   };
 
   const onSubmitOTP = (): void => {
-    onValidateOTP(oTPValue);
+    onValidateOTP(otpValue);
   };
 
   const resendOTP = async (): Promise<void> => {
     setIsResending(true);
     try {
-      await requestOTP(mobileNumber, codeKey, endpoint);
+      await requestOTP(loginToken);
       setIsResending(false);
       setResendDisabledTime(RESEND_OTP_TIME_LIMIT);
     } catch (e) {
@@ -103,7 +118,7 @@ export const LoginOTPCard: FunctionComponent<LoginOTPCard> = ({
       <View style={styles.inputAndButtonWrapper}>
         <InputWithLabel
           label="OTP"
-          value={oTPValue}
+          value={otpValue}
           onChange={({ nativeEvent: { text } }) => handleChange(text)}
           onSubmitEditing={onSubmitOTP}
           keyboardType="numeric"

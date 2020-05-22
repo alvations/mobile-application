@@ -1,6 +1,7 @@
 import React, {
   FunctionComponent,
   useEffect,
+  useState,
   useLayoutEffect,
   useContext
 } from "react";
@@ -23,6 +24,9 @@ import { FeatureToggler } from "../FeatureToggler/FeatureToggler";
 import { ImportantMessageContentContext } from "../../context/importantMessage";
 import { Banner } from "../Layout/Banner";
 import { LoginCard } from "./LoginCard";
+import { LoginOTPCard } from "./LoginOTPCard";
+import { LoginMobileNumberCard } from "./LoginMobileNumberCard";
+import { LoginStage } from "./types";
 
 const styles = StyleSheet.create({
   content: {
@@ -52,15 +56,28 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
     Sentry.addBreadcrumb({ category: "navigation", message: "LoginContainer" });
   }, []);
 
-  const { sessionToken } = useAuthenticationContext();
+  const { sessionToken, clickerUuid } = useAuthenticationContext();
   const showHelpModal = useContext(HelpModalContext);
   const messageContent = useContext(ImportantMessageContentContext);
+  const [loginStage, setLoginStage] = useState<LoginStage>("MOBILE_NUMBER");
 
   useLayoutEffect(() => {
-    if (sessionToken) {
+    if (sessionToken && clickerUuid) {
       navigation.navigate("CollectCustomerDetailsScreen");
     }
-  }, [navigation, sessionToken]);
+  }, [navigation, sessionToken, clickerUuid]);
+
+  const renderLoginCard: () => void = () => {
+    if (loginStage === "CLICKER") {
+      return (
+        <LoginCard setLoginStage={setLoginStage} navigation={navigation} />
+      );
+    } else if (loginStage === "OTP") {
+      return <LoginOTPCard setLoginStage={setLoginStage} />;
+    } else {
+      return <LoginMobileNumberCard setLoginStage={setLoginStage} />;
+    }
+  };
 
   return (
     <>
@@ -75,15 +92,12 @@ export const InitialisationContainer: FunctionComponent<NavigationProps> = ({
             <View style={styles.headerText}>
               <AppName />
             </View>
-
             {messageContent && (
               <View style={styles.bannerWrapper}>
                 <Banner {...messageContent} />
               </View>
             )}
-
-            <LoginCard navigation={navigation} />
-
+            {renderLoginCard()}
             <FeatureToggler feature="HELP_MODAL">
               <HelpButton onPress={showHelpModal} />
             </FeatureToggler>

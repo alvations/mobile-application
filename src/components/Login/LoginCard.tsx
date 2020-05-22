@@ -1,4 +1,10 @@
-import React, { FunctionComponent, useState, useRef, useEffect } from "react";
+import React, {
+  FunctionComponent,
+  useState,
+  useRef,
+  Dispatch,
+  SetStateAction
+} from "react";
 import { View, StyleSheet, TextInput } from "react-native";
 import { DarkButton } from "../Layout/Buttons/DarkButton";
 import { size } from "../../common/styles";
@@ -7,7 +13,9 @@ import { AppText } from "../Layout/AppText";
 import { InputWithLabel } from "../Layout/InputWithLabel";
 import { NavigationProps } from "../../types";
 import { useAuthenticationContext } from "../../context/auth";
-import { validateLogin } from "../../services/auth";
+import { updateUserClicker } from "../../services/auth";
+import { useEffect } from "@storybook/addons";
+import { LoginStage } from "./types";
 
 const styles = StyleSheet.create({
   inputAndButtonWrapper: {
@@ -21,28 +29,38 @@ const styles = StyleSheet.create({
   }
 });
 
-export const LoginCard: FunctionComponent<NavigationProps> = ({
+interface LoginCard extends NavigationProps {
+  setLoginStage: Dispatch<SetStateAction<LoginStage>>;
+}
+export const LoginCard: FunctionComponent<LoginCard> = ({
+  setLoginStage,
   navigation
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [branchCode, setBranchCode] = useState("");
   const [username, setUsername] = useState("");
-  const { setAuthInfo } = useAuthenticationContext();
+  const { setClickerInfo, sessionToken } = useAuthenticationContext();
 
   const secondInputRef = useRef<TextInput>(null);
-
   const onSubmit = async (): Promise<void> => {
     setIsLoading(true);
     try {
       if (username.length <= 0) {
         throw new Error("Please specify your name");
       }
-      const response = await validateLogin(branchCode, username);
+      if (!sessionToken) {
+        setLoginStage("MOBILE_NUMBER");
+        alert("Sorry, your login session was lost, please log in again!");
+        return;
+      }
+      const response = await updateUserClicker(
+        branchCode,
+        username,
+        sessionToken
+      );
       setIsLoading(false);
-      setAuthInfo({
-        sessionToken: response.sessionToken,
-        expiry: response.ttl.getTime(),
-        username
+      setClickerInfo({
+        username: response.username
       });
       navigation.navigate("CollectCustomerDetailsScreen");
     } catch (e) {
