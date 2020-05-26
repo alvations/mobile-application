@@ -81,12 +81,15 @@ const CollectCustomerDetailsScreen: FunctionComponent<NavigationFocusInjectedPro
 
   const messageContent = useContext(ImportantMessageContentContext);
   const showHelpModal = useContext(HelpModalContext);
-  const { sessionToken } = useAuthenticationContext();
+  const {
+    sessionToken,
+    locationName,
+    setLocationName
+  } = useAuthenticationContext();
   const { config } = useConfigContext();
 
   const [shouldShowCamera, setShouldShowCamera] = useState(false);
   const [nricInput, setNricInput] = useState("");
-  const [locationName, setLocationName] = useState("");
 
   // Close camera when back action is triggered
   useEffect(() => {

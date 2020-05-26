@@ -10,21 +10,28 @@ import { AsyncStorage } from "react-native";
 export const LOGIN_TOKEN_KEY = "LOGIN_TOKEN";
 export const SESSION_TOKEN_KEY = "SESSION_TOKEN";
 export const EXPIRY_KEY = "EXPIRY_KEY";
+export const LOCATION_NAME_KEY = "LOCATION_NAME_KEY";
 
 interface AuthenticationContext {
   isLoading: boolean;
   sessionToken: string;
   expiry: string;
+  locationName: string;
   setAuthInfo: (params: { sessionToken: string; expiry: number }) => void;
   clearAuthInfo: () => void;
+  setLocationName: (locationName: string) => void;
+  clearLocationName: () => void;
 }
 
 export const AuthenticationContext = createContext<AuthenticationContext>({
   isLoading: true,
   sessionToken: "",
   expiry: "",
+  locationName: "",
   setAuthInfo: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
-  clearAuthInfo: () => {} // eslint-disable-line @typescript-eslint/no-empty-function
+  clearAuthInfo: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
+  setLocationName: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
+  clearLocationName: () => {} // eslint-disable-line @typescript-eslint/no-empty-function
 });
 
 export const useAuthenticationContext = (): AuthenticationContext =>
@@ -36,6 +43,7 @@ export const AuthenticationContextProvider: FunctionComponent = ({
   const [isLoading, setIsLoading] = useState(true);
   const [sessionToken, setSessionToken] = useState("");
   const [expiry, setExpiry] = useState("");
+  const [location, setLocation] = useState("");
 
   const setAuthInfo: AuthenticationContext["setAuthInfo"] = async ({
     sessionToken,
@@ -55,6 +63,18 @@ export const AuthenticationContextProvider: FunctionComponent = ({
     await AsyncStorage.multiRemove([SESSION_TOKEN_KEY, EXPIRY_KEY]);
   }, []);
 
+  const setLocationName: AuthenticationContext["setLocationName"] = async (
+    locationName
+  ): Promise<void> => {
+    setLocation(locationName);
+    await AsyncStorage.setItem(LOCATION_NAME_KEY, locationName);
+  };
+
+  const clearLocationName = useCallback(async (): Promise<void> => {
+    setLocation("");
+    await AsyncStorage.removeItem(LOCATION_NAME_KEY);
+  }, []);
+
   const loadAuthFromStore = async (): Promise<void> => {
     const values = await AsyncStorage.multiGet([SESSION_TOKEN_KEY, EXPIRY_KEY]);
     const [sessionToken, expiry] = values.map(value => value[1]);
@@ -64,9 +84,17 @@ export const AuthenticationContextProvider: FunctionComponent = ({
     }
   };
 
+  const loadLocationNameFromStore = async (): Promise<void> => {
+    const locationName = await AsyncStorage.getItem(LOCATION_NAME_KEY);
+    if (locationName) {
+      setLocation(locationName);
+    }
+  };
+
   useEffect(() => {
     const load = async (): Promise<void> => {
       await loadAuthFromStore();
+      await loadLocationNameFromStore();
       setIsLoading(false);
     };
     load();
@@ -78,8 +106,11 @@ export const AuthenticationContextProvider: FunctionComponent = ({
         isLoading,
         sessionToken,
         expiry,
+        locationName: location,
         setAuthInfo,
-        clearAuthInfo
+        clearAuthInfo,
+        setLocationName,
+        clearLocationName
       }}
     >
       {children}

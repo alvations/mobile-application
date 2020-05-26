@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import { getClickerDetails as getClickerDetailsService } from "../../services/counts";
-import { updateUserClicker } from "../../services/auth";
 import { APIError } from "../../services/helpers";
 
 export type ClickerDetailsHook = {
