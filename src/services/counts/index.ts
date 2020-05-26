@@ -1,7 +1,7 @@
 import { IS_MOCK, ENDPOINT } from "../../config";
 import { UpdateCountResult, ClickerDetails } from "../../types";
 import { GantryMode } from "../../context/config";
-import { fetchWithValidator, ValidationError } from "../helpers";
+import { fetchWithValidator, ValidationError, APIError } from "../helpers";
 import * as Sentry from "sentry-expo";
 
 export class UpdateCountError extends Error {
@@ -140,6 +140,9 @@ export const liveGetClickerDetails = async (
   } catch (e) {
     if (e instanceof ValidationError) {
       Sentry.captureException(e);
+    } else if (e instanceof APIError) {
+      Sentry.captureException(e);
+      throw e;
     }
     throw new GetClickerDetailsError(e.message);
   }

@@ -10,6 +10,13 @@ export class ValidationError extends Error {
   }
 }
 
+export class APIError extends Error {
+  constructor(type: string, title: string) {
+    super(title);
+    this.name = type;
+  }
+}
+
 export async function fetchWithValidator<T, O, I>(
   validator: Type<T, O, I>,
   requestInfo: RequestInfo,
@@ -19,9 +26,6 @@ export async function fetchWithValidator<T, O, I>(
   const response = await fetch(requestInfo, init);
 
   const json = await response.json();
-  if (!response.ok) {
-    throw new Error(json.message ?? "Fetch failed");
-  }
 
   if (!response.ok) {
     const errorDecoded = errorValidator.decode(json);
@@ -33,9 +37,9 @@ export async function fetchWithValidator<T, O, I>(
       (value: TypeOf<typeof errorValidator>) => {
         // Error type is valid
         // TODO: populate error with the correct properties
-        throw new Error(json.message ?? "Fetch failed");
+        throw new APIError(json.type, json.title);
       }
-    );
+    )(errorDecoded);
   }
 
   const decoded = validator.decode(json);

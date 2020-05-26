@@ -124,7 +124,6 @@ export type ClickerDetails = t.TypeOf<typeof ClickerDetails>;
 export const JsonError = t.type({
   type: t.string,
   title: t.string,
-  status: t.number,
   error: t.string
 });
 

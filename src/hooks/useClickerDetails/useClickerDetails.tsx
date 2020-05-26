@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { getClickerDetails as getClickerDetailsService } from "../../services/counts";
 import { updateUserClicker } from "../../services/auth";
+import { APIError } from "../../services/helpers";
 
 export type ClickerDetailsHook = {
   getClickerDetails: () => void;
@@ -29,6 +30,9 @@ export const useClickerDetails = (
         setCount(result.count);
         setName(result.name);
       } catch (e) {
+        if (e instanceof APIError && e.name === "user-clicker-not-set") {
+          return;
+        }
         setError(
           new Error(`Couldn't get clicker info, please try again later`)
         );
