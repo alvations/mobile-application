@@ -46,16 +46,11 @@ export const useClickerDetails = (
 
   const resetClickerDetails = useCallback(() => {
     const reset = (): void => {
-      try {
-        setName("");
-        setCount(0);
-        updateUserClicker("", "", sessionToken);
-      } catch (e) {
-        console.log(e);
-      }
+      setName("");
+      setCount(0);
     };
     reset();
-  }, [sessionToken]);
+  }, []);
 
   return {
     getClickerDetails,
