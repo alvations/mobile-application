@@ -1,10 +1,6 @@
 import { IS_MOCK, ENDPOINT } from "../../config";
 import * as t from "io-ts";
-import {
-  SessionCredentials,
-  ClickerCredentials,
-  LoginCredentials
-} from "../../types";
+import { SessionCredentials, LoginCredentials } from "../../types";
 import { fetchWithValidator, ValidationError } from "../helpers";
 import * as Sentry from "sentry-expo";
 
@@ -149,22 +145,23 @@ export const mockUpdateUserClicker = async (
   _branchCode: string,
   _username: string,
   _sessionToken: string
-): Promise<ClickerCredentials> => {
+): Promise<unknown> => {
   await new Promise(res => setTimeout(() => res("done"), 500));
   return {
     clickerUuid: "some-clicker-uuid",
     username: "test-user"
   };
 };
+// return t.unknown as only status is returned
 export const liveUpdateUserClicker = async (
   branchCode: string,
   username: string,
   sessionToken: string
-): Promise<ClickerCredentials> => {
+): Promise<unknown> => {
   const payload = { code: branchCode, name: username };
   try {
     const response = await fetchWithValidator(
-      ClickerCredentials,
+      t.unknown,
       `${ENDPOINT}/logins/update_user_login_clicker`,
       {
         method: "POST",
