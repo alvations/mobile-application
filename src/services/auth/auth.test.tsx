@@ -69,20 +69,7 @@ describe("auth", () => {
       await expect(loginRequest(mobileNumber)).rejects.toThrow(APIError);
     });
 
-    it("should throw error if returned success response is malformed", async () => {
-      expect.assertions(1);
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            incorrectKey: loginUuid
-          })
-      });
-
-      await expect(loginRequest(mobileNumber)).rejects.toThrow(LoginError);
-    });
-
-    it("should capture exception through sentry if response is malformed", async () => {
+    it("should throw error and capture exception through sentry if response is malformed", async () => {
       expect.assertions(2);
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -139,7 +126,7 @@ describe("auth", () => {
       await expect(requestOTP(loginUuid)).rejects.toThrow(APIError);
     });
 
-    it("should capture exception through sentry if response is malformed", async () => {
+    it("should throw error and capture exception through sentry if response is malformed", async () => {
       expect.assertions(2);
       // request_otp does not return a body, so we use a malformed error response instead
       mockFetch.mockResolvedValueOnce({
@@ -201,21 +188,7 @@ describe("auth", () => {
       await expect(validateOTP(otp, loginUuid)).rejects.toThrow(APIError);
     });
 
-    it("should throw error if returned success response is malformed", async () => {
-      expect.assertions(1);
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            incorrectKey: sessionToken,
-            ttl: ttl.getTime()
-          })
-      });
-
-      await expect(validateOTP(otp, loginUuid)).rejects.toThrow(LoginError);
-    });
-
-    it("should capture exception through sentry if response is malformed", async () => {
+    it("should throw error and capture exception through sentry if response is malformed", async () => {
       expect.assertions(2);
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -279,7 +252,7 @@ describe("auth", () => {
       );
     });
 
-    it("should capture exception through sentry if response is malformed", async () => {
+    it("should throw error and capture exception through sentry if response is malformed", async () => {
       expect.assertions(2);
       // updateUserClicker does not return a body, so we use a malformed error response instead
       mockFetch.mockResolvedValueOnce({
