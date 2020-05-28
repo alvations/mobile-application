@@ -29,7 +29,7 @@ export const useClickerDetails = (
         setCount(result.count);
         setName(result.name);
       } catch (e) {
-        if (e instanceof APIError && e.name === "user-clicker-not-set") {
+        if (e instanceof APIError && e.type === "user-clicker-not-set") {
           return;
         }
         setError(
