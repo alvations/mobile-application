@@ -121,10 +121,10 @@ export const ClickerDetails = t.type({
 });
 export type ClickerDetails = t.TypeOf<typeof ClickerDetails>;
 
-export const JsonError = t.type({
+export const APIErrorProps = t.type({
   type: t.string,
   title: t.string,
   error: t.string
 });
 
-export type JsonError = t.TypeOf<typeof JsonError>;
+export type APIErrorProps = t.TypeOf<typeof APIErrorProps>;

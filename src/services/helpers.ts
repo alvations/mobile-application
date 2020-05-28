@@ -1,7 +1,7 @@
 import { fold } from "fp-ts/lib/Either";
-import { Type, TypeOf } from "io-ts";
+import { Type } from "io-ts";
 import { reporter } from "io-ts-reporters";
-import { JsonError } from "../types";
+import { APIErrorProps } from "../types";
 
 export class ValidationError extends Error {
   constructor(message: string) {
@@ -11,33 +11,42 @@ export class ValidationError extends Error {
 }
 
 export class APIError extends Error {
-  constructor(type: string, title: string) {
-    super(title);
-    this.name = type;
+  /** Type of API error */
+  type: string;
+
+  /** Human readable error message. Same as Error.message */
+  title: string;
+
+  /** Returns "APIError" */
+  name: string;
+
+  constructor(props: APIErrorProps) {
+    super(props.title);
+    this.name = "APIError";
+    this.type = props.type;
+    this.title = props.title;
   }
 }
 
 export async function fetchWithValidator<T, O, I>(
   validator: Type<T, O, I>,
   requestInfo: RequestInfo,
-  init?: RequestInit,
-  errorValidator = JsonError
+  init?: RequestInit
 ): Promise<T> {
   const response = await fetch(requestInfo, init);
 
   const json = await response.json();
 
   if (!response.ok) {
-    const errorDecoded = errorValidator.decode(json);
+    const errorDecoded = APIErrorProps.decode(json);
     fold(
       () => {
         // Error does not have the correct type
         throw new ValidationError(reporter(errorDecoded).join(" "));
       },
-      (value: TypeOf<typeof errorValidator>) => {
+      (errorProps: APIErrorProps) => {
         // Error type is valid
-        // TODO: populate error with the correct properties
-        throw new APIError(value.type, value.title);
+        throw new APIError(errorProps);
       }
     )(errorDecoded);
   }
