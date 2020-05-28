@@ -18,6 +18,17 @@ export class GetClickerDetailsError extends Error {
   }
 }
 
+const generateHeaders = (sessionToken?: string): Headers => {
+  const headers = new Headers();
+  headers.set("CROWD_GO_WHERE_TOKEN", process.env.CLIENT_API_KEY ?? "");
+  headers.set("Content-Type", "application/json");
+  headers.set("Accept", "application/json");
+  if (sessionToken) {
+    headers.set("USER_SESSION_ID", sessionToken);
+  }
+  return headers;
+};
+
 interface UpdateCount {
   id: string;
   sessionToken: string;
@@ -72,14 +83,6 @@ export const liveUpdateCount = async ({
       id: id,
       bypassRestriction: bypassRestriction
     };
-    const cgwToken: string = process.env.CLIENT_API_KEY
-      ? process.env.CLIENT_API_KEY
-      : "";
-    const headers: HeadersInit = new Headers();
-    headers.set("Content-Type", "application/json");
-    headers.set("USER_SESSION_ID", sessionToken);
-    headers.set("Accept", "application/json");
-    headers.set("CROWD_GO_WHERE_TOKEN", cgwToken);
 
     let fullEndpoint = `${ENDPOINT}/entries/`;
     switch (gantryMode) {
@@ -93,13 +96,15 @@ export const liveUpdateCount = async ({
 
     const response = await fetchWithValidator(UpdateCountResult, fullEndpoint, {
       method: "POST",
-      headers: headers,
+      headers: generateHeaders(sessionToken),
       body: JSON.stringify(payload)
     });
     return response;
   } catch (e) {
     if (e instanceof ValidationError) {
       Sentry.captureException(e);
+    } else if (e instanceof APIError) {
+      throw e;
     }
     throw new UpdateCountError(e.message);
   }
@@ -119,21 +124,13 @@ export const liveGetClickerDetails = async (
   sessionToken: string
 ): Promise<ClickerDetails> => {
   try {
-    const cgwToken: string = process.env.CLIENT_API_KEY
-      ? process.env.CLIENT_API_KEY
-      : "";
-    const headers: HeadersInit = new Headers();
-    headers.set("Content-Type", "application/json");
-    headers.set("USER_SESSION_ID", sessionToken);
-    headers.set("Accept", "application/json");
-    headers.set("CROWD_GO_WHERE_TOKEN", cgwToken);
     const fullEndpoint = `${ENDPOINT}/entries/retrieve_entries_info`;
     const response = await fetchWithValidator(
       ClickerDetails,
       encodeURI(fullEndpoint),
       {
         method: "GET",
-        headers: headers
+        headers: generateHeaders(sessionToken)
       }
     );
     return response;
@@ -141,7 +138,6 @@ export const liveGetClickerDetails = async (
     if (e instanceof ValidationError) {
       Sentry.captureException(e);
     } else if (e instanceof APIError) {
-      Sentry.captureException(e);
       throw e;
     }
     throw new GetClickerDetailsError(e.message);
