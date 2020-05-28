@@ -37,7 +37,7 @@ export async function fetchWithValidator<T, O, I>(
       (value: TypeOf<typeof errorValidator>) => {
         // Error type is valid
         // TODO: populate error with the correct properties
-        throw new APIError(json.type, json.title);
+        throw new APIError(value.type, value.title);
       }
     )(errorDecoded);
   }

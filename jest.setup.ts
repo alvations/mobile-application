@@ -21,3 +21,6 @@ NativeModules.RNCNetInfo = {
 
 const globalAny: any = global;
 globalAny.alert = jest.fn(); // eslint-disable-line jest/prefer-spy-on
+
+process.env.CLIENT_API_KEY = "API-KEY";
+process.env.DEV_ENDPOINT = "https://se-dev-endpoint.com";
