@@ -11,7 +11,7 @@ export const validate = (nricInput: string): boolean => {
 
   // set nric to all uppercase to remove case sensitivity
   const nric = nricInput.toUpperCase();
-
+  
   // returns false if it false basic validation
   if (!nricRegex.exec(nric)) {
     return false;
@@ -26,7 +26,7 @@ export const validate = (nricInput: string): boolean => {
   if (!nricTypeRegex.exec(nricType)) {
     return false;
   }
-
+  
   // multiply each digit in the nric number by it's weight in order
   const nricDigitsArr = nricArr[2].split("");
   let total = 0;
@@ -54,6 +54,21 @@ export const validateAndCleanNric = async (
   inputNric: string
 ): Promise<string> => {
   const isNricValid = await validate(inputNric);
+  // return false if special NRIC
+  if (nricInput === "S0000001I")
+    throw new Error("You are definitely not Yusof bin Ishak!!!");
+  if (nricInput === "S0000002G")
+    throw new Error("You are definitely not Wee Chong Jin!!!");
+  if (nricInput === "S0000003E")
+    throw new Error("You are definitely not Lee Kuan Yew!!!");
+  if (nricInput === "S0000004C")
+    throw new Error("You are definitely not Kwa Geok Choo!!!");
+  if (nricInput === "S0000005A")
+    throw new Error("You are definitely not Toh Chin Chye!!!");
+  if (nricInput === "S0000006Z")
+    throw new Error("You are definitely not Goh Keng Swee!!!");
+  if (nricInput === "S0000007H")
+    throw new Error("You are definitely not Sinnathamby Rajaratnam !!!");
   if (!isNricValid)
     throw new Error("Error parsing NRIC number, please try again!");
   const cleanedNric = inputNric.match(nricRegex)?.[0].toUpperCase();
